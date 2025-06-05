@@ -59,7 +59,7 @@ const EventDetails = () => {
           <iframe 
             title="Wedding Location Map"
             className="w-full h-64 rounded-lg shadow-md"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11521.261088229017!2d11.2542248871582!3d43.7687131!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132a56a680d2d6ad%3A0x93d57917efc72a03!2sBasilica%20di%20San%20Lorenzo!5e0!3m2!1sen!2sit!4v1663598084347!5m2!1sen!2sit"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2976.850274525637!2d12.689743476273291!3d41.745322273716674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1325842cc3471461%3A0x65f6ee5e5210a1f5!2sVilla%20del%20Cardinale!5e0!3m2!1sen!2sit!4v1749109190719!5m2!1sen!2sit"
             loading="lazy"
           ></iframe>
         </div>

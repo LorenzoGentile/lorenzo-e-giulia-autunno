@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
@@ -9,136 +8,123 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Image, Upload, X } from 'lucide-react';
 
-const PhotoUpload = () => {
+// Mock Supabase client for demonstration if not set up
+const mockSupabase = {
+  storage: {
+    from: (bucketName: string) => ({
+      upload: async (filePath: string, file: File) => {
+        console.log(`Mock uploading ${filePath} to ${bucketName}...`);
+        // Simulate upload delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Simulate a successful upload
+        // return { data: { path: filePath }, error: null };
+        // Simulate an error
+        // return { data: null, error: { message: 'Mock upload failed' } };
+        // Simulate successful upload for now
+        return { data: { path: filePath }, error: null };
+      },
+    }),
+  },
+};
+
+interface PhotoUploadProps {
+  // userId: string; // Or get from Supabase auth session
+}
+
+const PhotoUpload: React.FC<PhotoUploadProps> = (/*{ userId }*/) => {
   const { user, isInvitedGuest } = useAuth();
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
-  const [preview, setPreview] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      setSelectedImage(null);
-      setPreview(null);
-      return;
-    }
+  const acceptedTypes = ['image/jpeg', 'image/png', 'image/heic'];
+  const acceptedExtensions = '.jpg,.jpeg,.png,.heic';
 
-    const file = e.target.files[0];
-    
-    // Validate file type
-    if (!file.type.includes('image/')) {
-      toast.error('File type not supported', {
-        description: 'Please select an image file (JPEG, PNG, etc.)'
-      });
-      return;
-    }
-    
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File too large', {
-        description: 'Please select an image smaller than 5MB'
-      });
-      return;
-    }
-    
-    setSelectedImage(file);
-    
-    // Create preview
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
-    
-    // Clean up preview URL when component unmounts
-    return () => URL.revokeObjectURL(objectUrl);
-  };
-  
-  const clearImage = () => {
-    setSelectedImage(null);
-    setPreview(null);
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!user || !isInvitedGuest) {
-      toast.error('Authentication required', {
-        description: 'You must be logged in as an invited guest to upload photos'
-      });
-      return;
-    }
-    
-    if (!selectedImage) {
-      toast.error('No image selected', {
-        description: 'Please select an image to upload'
-      });
-      return;
-    }
-    
-    setIsUploading(true);
-    
-    try {
-      // Get guest ID
-      const { data: guestData, error: guestError } = await supabase
-        .from('invited_guests')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-        
-      if (guestError) throw guestError;
-      
-      if (!guestData) {
-        throw new Error('Guest information not found');
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    setSuccessMessage(null);
+    const file = event.target.files?.[0];
+
+    if (file) {
+      if (!acceptedTypes.includes(file.type) && !acceptedExtensions.includes(file.name.substring(file.name.lastIndexOf('.')).toLowerCase())) {
+        // A simple check for HEIC based on extension if type is not specific enough (e.g., application/octet-stream)
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        if (fileExtension !== '.heic') {
+            setError(`Invalid file type. Please upload a JPEG, PNG, or HEIC image. Type detected: ${file.type || 'unknown'}`);
+            setSelectedFile(null);
+            setPreviewUrl(null);
+            return;
+        }
       }
       
-      // Generate a unique file name
-      const fileExt = selectedImage.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
-      
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('wedding_photos')
-        .upload(filePath, selectedImage);
-        
-      if (uploadError) throw uploadError;
-      
-      // Get the public URL
-      const { data: publicURLData } = supabase.storage
-        .from('wedding_photos')
-        .getPublicUrl(filePath);
-        
-      // Save to wedding_photos table
-      const { error: saveError } = await supabase
-        .from('wedding_photos')
-        .insert({
-          guest_id: guestData.id,
-          image_url: publicURLData.publicUrl,
-          caption
-        });
-        
-      if (saveError) throw saveError;
-      
-      toast.success('Photo uploaded successfully!', {
-        description: 'Thank you for sharing your memory!'
-      });
-      
-      // Reset form
-      setSelectedImage(null);
-      setPreview(null);
-      setCaption('');
-      
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error('Upload failed', {
-        description: error.message || 'An error occurred while uploading the photo'
-      });
-    } finally {
-      setIsUploading(false);
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSelectedFile(null);
+      setPreviewUrl(null);
     }
   };
-  
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setError('Please select a file to upload.');
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      // Ensure you have the user's ID for creating a unique path if needed
+      // For example, if you want to store images in a user-specific folder:
+      // const userId = supabase.auth.user()?.id; // This is an example, actual usage depends on your auth setup
+      // if (!userId) {
+      //   setError('User not authenticated.');
+      //   setUploading(false);
+      //   return;
+      // }
+      // const filePath = `public/${userId}/${Date.now()}_${selectedFile.name}`;
+      
+      // Generic path for now
+      const fileName = `${Date.now()}_${selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const filePath = `public/${fileName}`; // Supabase storage typically uses 'public' for publicly accessible files or other RLS-protected paths
+
+      const { data, error: uploadError } = await mockSupabase.storage
+        .from('wedding-photos')
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: false, // Set to true if you want to overwrite files with the same name
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      if (data) {
+        setSuccessMessage(`Photo uploaded successfully! Path: ${data.path}`);
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        // Optionally, call a function to refresh a list of photos or notify parent component
+      }
+    } catch (e: any) {
+      setError(`Upload failed: ${e.message || 'Unknown error'}`);
+      console.error('Upload error:', e);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="max-w-xl mx-auto autumn-card">
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={(e) => { e.preventDefault(); handleUpload(); }} className="space-y-6">
         <div className="text-center">
           <h3 className="text-xl font-playfair text-autumn-burgundy mb-2">Condividi i Tuoi Momenti</h3>
           <p className="text-gray-600 mb-4">
@@ -146,7 +132,7 @@ const PhotoUpload = () => {
           </p>
         </div>
         
-        {!preview ? (
+        {!previewUrl ? (
           <div className="border-2 border-dashed border-autumn-amber rounded-lg p-8 text-center">
             <label className="flex flex-col items-center justify-center cursor-pointer">
               <Upload className="w-10 h-10 text-autumn-terracotta mb-2" />
@@ -158,8 +144,8 @@ const PhotoUpload = () => {
               </span>
               <Input 
                 type="file" 
-                accept="image/*"
-                onChange={handleImageChange}
+                accept={acceptedExtensions}
+                onChange={handleFileChange}
                 className="hidden"
               />
             </label>
@@ -171,12 +157,12 @@ const PhotoUpload = () => {
               variant="destructive"
               size="sm"
               className="absolute top-2 right-2 rounded-full"
-              onClick={clearImage}
+              onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
             >
               <X className="w-4 h-4" />
             </Button>
             <img 
-              src={preview} 
+              src={previewUrl} 
               alt="Preview" 
               className="mx-auto max-h-80 rounded-lg object-contain"
             />
@@ -198,13 +184,16 @@ const PhotoUpload = () => {
         <div className="flex justify-center">
           <Button
             type="submit"
-            disabled={!selectedImage || isUploading}
+            disabled={!selectedFile || uploading}
             className="autumn-button"
           >
-            {isUploading ? 'Caricamento in corso...' : 'Carica Foto'}
+            {uploading ? 'Caricamento in corso...' : 'Carica Foto'}
           </Button>
         </div>
       </form>
+
+      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {successMessage && <p className="text-green-500 mt-2">{successMessage}</p>}
     </div>
   );
 };

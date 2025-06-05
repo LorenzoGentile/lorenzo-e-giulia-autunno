@@ -116,7 +116,7 @@ const getPhotoCaption = (filename: string): string => {
 
 /**
  * Fetch wedding photos uploaded by guests
- * This will be used in the future for the wedding-photos functionality
+ * This will be used in the future for the wedding_photos functionality
  */
 export const fetchWeddingPhotos = async (): Promise<WeddingPhoto[]> => {
   try {
@@ -135,7 +135,7 @@ export const fetchWeddingPhotos = async (): Promise<WeddingPhoto[]> => {
 };
 
 /**
- * Upload a photo to the wedding-photos bucket
+ * Upload a photo to the wedding_photos bucket
  * This will be used by guests during the wedding
  */
 export const uploadWeddingPhoto = async (
@@ -151,14 +151,14 @@ export const uploadWeddingPhoto = async (
     
     // Upload to storage
     const { error: uploadError } = await supabase.storage
-      .from('wedding-photos')
+      .from('wedding_photos')
       .upload(filePath, file);
       
     if (uploadError) throw uploadError;
     
     // Get the public URL
     const { data: publicURLData } = supabase.storage
-      .from('wedding-photos')
+      .from('wedding_photos')
       .getPublicUrl(filePath);
       
     // Save to wedding_photos table

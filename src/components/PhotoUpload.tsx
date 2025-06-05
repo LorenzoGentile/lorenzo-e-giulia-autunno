@@ -98,7 +98,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = (/*{ userId }*/) => {
       const filePath = `public/${fileName}`; // Supabase storage typically uses 'public' for publicly accessible files or other RLS-protected paths
 
       const { data, error: uploadError } = await mockSupabase.storage
-        .from('wedding-photos')
+        .from('wedding_photos')
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: false, // Set to true if you want to overwrite files with the same name

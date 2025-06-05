@@ -101,7 +101,7 @@ const NewPhotoUploader: React.FC<NewPhotoUploaderProps> = (props) => {
       const filePath = `public/${fileName}`; // 'public' is often a default or common folder. Adjust if your bucket structure is different.
 
       const { data, error: uploadError } = await supabase.storage
-        .from('wedding-photos') // Your specified bucket name
+        .from('wedding_photos') // Your specified bucket name
         .upload(filePath, selectedFile, {
           cacheControl: '3600', // Optional: Cache control header
           upsert: false,       // Optional: Set to true to overwrite existing files with the same path

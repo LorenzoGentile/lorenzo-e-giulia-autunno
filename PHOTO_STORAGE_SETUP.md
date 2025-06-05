@@ -7,7 +7,7 @@ This guide explains how to set up and manage the photo storage system for your w
 The wedding website uses two Supabase storage buckets:
 
 1. **`our-photos`** - Pre-selected photos by the couple (Lorenzo & Giulia)
-2. **`wedding-photos`** - Photos uploaded by guests during the wedding
+2. **`wedding_photos`** - Photos uploaded by guests during the wedding
 
 ## Setting Up Storage Buckets
 
@@ -29,20 +29,20 @@ CREATE POLICY "Authenticated upload to our-photos" ON storage.objects
 FOR INSERT WITH CHECK (bucket_id = 'our-photos' AND auth.role() = 'authenticated');
 ```
 
-### 2. Create the `wedding-photos` bucket
+### 2. Create the `wedding_photos` bucket
 
-1. Create a new bucket called `wedding-photos`
+1. Create a new bucket called `wedding_photos`
 2. Set the bucket to **public** (so uploaded photos can be displayed)
 3. Configure the bucket policies:
 
 ```sql
--- Allow public read access to wedding-photos bucket
-CREATE POLICY "Public read access for wedding-photos" ON storage.objects
-FOR SELECT USING (bucket_id = 'wedding-photos');
+-- Allow public read access to wedding_photos bucket
+CREATE POLICY "Public read access for wedding_photos" ON storage.objects
+FOR SELECT USING (bucket_id = 'wedding_photos');
 
--- Allow authenticated users to upload to wedding-photos
-CREATE POLICY "Authenticated upload to wedding-photos" ON storage.objects
-FOR INSERT WITH CHECK (bucket_id = 'wedding-photos' AND auth.role() = 'authenticated');
+-- Allow authenticated users to upload to wedding_photos
+CREATE POLICY "Authenticated upload to wedding_photos" ON storage.objects
+FOR INSERT WITH CHECK (bucket_id = 'wedding_photos' AND auth.role() = 'authenticated');
 ```
 
 ## Uploading Photos to `our-photos`
@@ -107,7 +107,7 @@ For better automatic caption generation, use descriptive filenames:
 4. If the bucket is empty or there's an error, fallback placeholder images are shown
 
 ### Future Wedding Day Feature
-- Guests will be able to upload photos to the `wedding-photos` bucket
+- Guests will be able to upload photos to the `wedding_photos` bucket
 - These photos will be displayed in a separate gallery section
 - The existing `PhotoUpload` and `PhotoGallery` components handle this functionality
 

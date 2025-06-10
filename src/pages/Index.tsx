@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -40,14 +39,13 @@ const Index = () => {
       
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center bg-cover bg-center relative" style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjJ8fGF1dHVtbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1600&q=60')`
+        backgroundImage: `url('/top_background.svg')`
       }}>
-        <div className="absolute inset-0 bg-autumn-burgundy opacity-20"></div>
         <div className="container mx-auto px-4 z-10 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-white font-playfair mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-autumn-dark-brown font-playfair mb-6">
             Lorenzo & Giulia
           </h1>
-          <p className="text-2xl md:text-3xl text-white font-light mb-12 font-montserrat">
+          <p className="text-2xl md:text-3xl text-autumn-dark-brown font-light mb-12 font-montserrat">
             Vi invitiamo al nostro matrimonio
           </p>
           <div className="bg-white bg-opacity-90 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-3xl mx-auto">

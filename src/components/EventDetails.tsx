@@ -1,27 +1,7 @@
-
 import React from 'react';
-import { Calendar, MapPin, Clock, Heart } from 'lucide-react';
+import { Calendar, MapPin, Clock } from 'lucide-react';
 
 const EventDetails = () => {
-  const events = [
-    {
-      title: 'La Cerimonia',
-      time: '16:00',
-      location: 'Chiesa di San Lorenzo',
-      address: 'Via dei Medici, 15, Firenze',
-      icon: Heart,
-      description: 'La cerimonia si svolgerà nella storica Chiesa di San Lorenzo, nel cuore di Firenze.'
-    },
-    {
-      title: 'Il Ricevimento',
-      time: '18:00',
-      location: 'Villa Toscana',
-      address: 'Via delle Colline, 42, Fiesole',
-      icon: MapPin,
-      description: 'Il ricevimento sarà ospitato nella magnifica Villa Toscana, con vista panoramica su Firenze.'
-    }
-  ];
-
   return (
     <div className="section-container bg-autumn-cream bg-opacity-20" id="dettagli">
       <h2 className="section-title">Dettagli dell'Evento</h2>
@@ -34,23 +14,32 @@ const EventDetails = () => {
         <p className="text-lg text-gray-700">Vi invitiamo a celebrare il nostro matrimonio</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {events.map((event, index) => (
-          <div key={index} className="autumn-card flex flex-col items-center text-center">
-            <event.icon className="w-10 h-10 text-autumn-terracotta mb-4" />
-            <h3 className="text-2xl font-playfair text-autumn-burgundy mb-2">{event.title}</h3>
-            
-            <div className="flex items-center justify-center mb-2">
-              <Clock className="w-4 h-4 text-autumn-terracotta mr-2" />
-              <span className="text-lg">{event.time}</span>
+      <div className="autumn-card max-w-3xl mx-auto text-center p-8">
+        <MapPin className="w-10 h-10 text-autumn-terracotta mb-4 mx-auto" />
+        <h3 className="text-3xl font-playfair text-autumn-burgundy mb-2">Villa del Cardinale</h3>
+        <p className="text-lg text-gray-600 mb-6">Via dei Laghi 7, Km 11, 00040 Rocca di Papa RM</p>
+
+        <div className="flex justify-center divide-x-2 divide-autumn-gold my-6">
+          <div className="px-8 text-center">
+            <h4 className="text-2xl font-playfair text-autumn-burgundy mb-2">La Cerimonia</h4>
+            <div className="flex items-center justify-center">
+              <Clock className="w-5 h-5 text-autumn-terracotta mr-2" />
+              <span className="text-xl">12:00</span>
             </div>
-            
-            <h4 className="text-xl font-semibold mb-1">{event.location}</h4>
-            <p className="text-gray-600 mb-4">{event.address}</p>
-            
-            <p className="text-gray-700">{event.description}</p>
           </div>
-        ))}
+          <div className="px-8 text-center">
+            <h4 className="text-2xl font-playfair text-autumn-burgundy mb-2">Il Ricevimento</h4>
+            <div className="flex items-center justify-center">
+              <Clock className="w-5 h-5 text-autumn-terracotta mr-2" />
+            <span className="text-xl">14:00</span>
+            </div>
+          </div>
+        </div>
+        
+        <p className="text-gray-700 mt-6 text-lg">
+          La cerimonia e il ricevimento si terranno entrambi nella splendida cornice di Villa del Cardinale, 
+          un luogo incantevole che abbiamo scelto per condividere con voi questo giorno speciale.
+        </p>
       </div>
 
       <div className="mt-12 text-center">

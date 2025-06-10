@@ -1,33 +1,32 @@
-
 import React, { useEffect, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const OurStory = () => {
   const timelineEvents = [
     {
-      date: 'Settembre 2018',
+      date: '14 Giugno 2012',
       title: 'Il primo incontro',
-      description: 'Ci siamo incontrati ad una festa di amici comuni. Lorenzo ha notato Giulia mentre rideva con le sue amiche e ha deciso di presentarsi.'
+      description: 'Ci siamo incontrati in occasione della partita degli Europei Italia-Croazia a Piazza Vittorio. Finalemnte Giulia dopo aver tanto sentito parlare di lui, conosce "il Romano".'
     },
     {
-      date: 'Dicembre 2018',
+      date: '26 Settembre 2014',
       title: 'Il primo appuntamento',
-      description: 'Dopo settimane di messaggi, Lorenzo ha finalmente invitato Giulia a cena in un piccolo ristorante nel centro storico.'
+      description: 'Dopo più di due anni di amicizia, Lorenzo ha finalmente invitato Giulia a cena in un piccolo ristorante nel centro storico di Torino.'
     },
     {
-      date: 'Luglio 2019',
+      date: 'Giugno 2015',
       title: 'La prima vacanza insieme',
-      description: 'Abbiamo trascorso due settimane indimenticabili esplorando la Sicilia e le sue meravigliose spiagge.'
+      description: 'Abbiamo trascorso due settimane indimenticabili in Calabria, scoprendo le sue spiagge cristalline e i suoi borghi incantevoli. Da allora, ogni anno torniamo in questa terra meravigliosa per trascorrere splendide vacanze insieme.'
     },
     {
-      date: 'Marzo 2021',
+      date: 'Giugno 2018',
       title: 'La convivenza',
-      description: 'Abbiamo deciso di andare a vivere insieme nel nostro piccolo appartamento con vista sulle colline toscane.'
+      description: 'Giulia raggiunge Lorenzo a Gummersbach dove iniziano una lunga convivenza. Dopo essere passati per Colonia, ora continuano la loro vita insieme a Roma.'
     },
     {
-      date: 'Ottobre 2024',
+      date: 'Novembre 2024',
       title: 'La proposta',
-      description: 'Durante una passeggiata autunnale tra i vigneti, Lorenzo si è inginocchiato e mi ha chiesto di sposarlo.'
+      description: 'Lorenzo ha fatto la proposta a Giulia a St. James\'s Park a Londra, città che Giulia ama tanto. Anche i famosi scoiattoli del parco sono stati protagonisti di questo momento magico e indimenticabile.'
     }
   ];
 
@@ -46,7 +45,7 @@ const OurStory = () => {
       { threshold: 0.2 }
     );
     
-    const timelineItems = document.querySelectorAll('.timeline-item-animate');
+    const timelineItems = document.querySelectorAll('.timeline-item-animate');-
     timelineItems.forEach((item) => observer.observe(item));
     
     return () => {

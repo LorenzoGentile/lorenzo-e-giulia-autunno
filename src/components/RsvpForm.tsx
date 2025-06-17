@@ -6,13 +6,19 @@ import RsvpFormFields from './rsvp/RsvpFormFields';
 import { fetchGuestInfo, GuestInfo, submitRsvpResponse } from '@/integrations/supabase/supabase-rsvp';
 import { RsvpFormValues } from '@/types/rsvp';
 import { supabase } from '@/integrations/supabase/client';
-
+interface AdditionalGuest {
+  id: string;
+  rsvp_id: string;
+  name: string;
+  dietary_restrictions?: string;
+}
 interface ExistingRsvp {
   id: string;
   attending: boolean;
   created_at: string;
   dietary_restrictions?: string;
   message?: string;
+  additional_guests?: AdditionalGuest[]; // <-- add this!
 }
 
 const RsvpForm = () => {

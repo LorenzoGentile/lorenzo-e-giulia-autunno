@@ -62,6 +62,84 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_comments: {
+        Row: {
+          comment_text: string
+          created_at: string | null
+          guest_id: string
+          id: string
+          photo_id: string
+        }
+        Insert: {
+          comment_text: string
+          created_at?: string | null
+          guest_id: string
+          id?: string
+          photo_id: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string | null
+          guest_id?: string
+          id?: string
+          photo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_comments_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "invited_guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_comments_photo_id_fkey"
+            columns: ["photo_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_photos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_reactions: {
+        Row: {
+          created_at: string | null
+          guest_id: string
+          id: string
+          photo_id: string
+          reaction_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          guest_id: string
+          id?: string
+          photo_id: string
+          reaction_type?: string
+        }
+        Update: {
+          created_at?: string | null
+          guest_id?: string
+          id?: string
+          photo_id?: string
+          reaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_reactions_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "invited_guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_reactions_photo_id_fkey"
+            columns: ["photo_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_photos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rsvp_responses: {
         Row: {
           attending: boolean

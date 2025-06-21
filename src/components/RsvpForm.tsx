@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -6,19 +7,21 @@ import RsvpFormFields from './rsvp/RsvpFormFields';
 import { fetchGuestInfo, GuestInfo, submitRsvpResponse } from '@/integrations/supabase/supabase-rsvp';
 import { RsvpFormValues } from '@/types/rsvp';
 import { supabase } from '@/integrations/supabase/client';
+
 interface AdditionalGuest {
   id: string;
   rsvp_id: string;
   name: string;
   dietary_restrictions?: string;
 }
+
 interface ExistingRsvp {
   id: string;
   attending: boolean;
   created_at: string;
   dietary_restrictions?: string;
   message?: string;
-  additional_guests?: AdditionalGuest[]; // <-- add this!
+  additional_guests?: AdditionalGuest[];
 }
 
 const RsvpForm = () => {
@@ -88,51 +91,36 @@ const RsvpForm = () => {
     }
   };
 
-  const updateExistingRsvp = async (rsvpId: string, formData: RsvpFormValues) => {
+  const deleteExistingRsvp = async (rsvpId: string) => {
     try {
-      // Update the main RSVP response
-      const { error: rsvpError } = await supabase
-        .from('rsvp_responses')
-        .update({
-          attending: formData.attending === 'yes',
-          dietary_restrictions: formData.dietaryRestrictions,
-          message: formData.songRequest,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', rsvpId);
+      console.log('Deleting existing RSVP and additional guests for RSVP ID:', rsvpId);
       
-      if (rsvpError) throw rsvpError;
-      
-      // Delete existing additional guests
-      const { error: deleteError } = await supabase
+      // First delete additional guests
+      const { error: deleteGuestsError } = await supabase
         .from('additional_guests')
         .delete()
         .eq('rsvp_id', rsvpId);
       
-      if (deleteError) throw deleteError;
-      
-      // Insert new additional guests if attending and there are any
-      if (formData.attending === 'yes' && formData.additionalGuests.length > 0) {
-        const additionalGuestsToInsert = formData.additionalGuests
-          .filter(guest => guest.name.trim() !== '')
-          .map(guest => ({
-            rsvp_id: rsvpId,
-            name: guest.name,
-            dietary_restrictions: guest.dietaryRestrictions
-          }));
-          
-        if (additionalGuestsToInsert.length > 0) {
-          const { error: additionalGuestsError } = await supabase
-            .from('additional_guests')
-            .insert(additionalGuestsToInsert);
-            
-          if (additionalGuestsError) throw additionalGuestsError;
-        }
+      if (deleteGuestsError) {
+        console.error('Error deleting additional guests:', deleteGuestsError);
+        throw deleteGuestsError;
       }
       
+      // Then delete the main RSVP response
+      const { error: deleteRsvpError } = await supabase
+        .from('rsvp_responses')
+        .delete()
+        .eq('id', rsvpId);
+      
+      if (deleteRsvpError) {
+        console.error('Error deleting RSVP response:', deleteRsvpError);
+        throw deleteRsvpError;
+      }
+      
+      console.log('Successfully deleted existing RSVP and additional guests');
       return true;
     } catch (error) {
-      console.error('Error updating RSVP:', error);
+      console.error('Error deleting existing RSVP:', error);
       throw error;
     }
   };
@@ -144,18 +132,23 @@ const RsvpForm = () => {
     
     try {
       if (existingRsvp) {
-        // Update existing RSVP
-        await updateExistingRsvp(existingRsvp.id, formData);
+        // Delete existing RSVP and additional guests before creating new ones
+        await deleteExistingRsvp(existingRsvp.id);
+        toast.success('Risposta precedente rimossa. Creazione nuova risposta...');
+      }
+      
+      // Always create new RSVP (whether replacing existing or creating first time)
+      await submitRsvpResponse(
+        guestInfo.id,
+        formData.attending === 'yes',
+        formData.dietaryRestrictions,
+        formData.songRequest,
+        formData.additionalGuests
+      );
+      
+      if (existingRsvp) {
         toast.success('RSVP aggiornato con successo!');
       } else {
-        // Create new RSVP
-        await submitRsvpResponse(
-          guestInfo.id,
-          formData.attending === 'yes',
-          formData.dietaryRestrictions,
-          formData.songRequest,
-          formData.additionalGuests
-        );
         toast.success('RSVP inviato con successo!');
       }
       
@@ -213,7 +206,8 @@ const RsvpForm = () => {
             )}
             {existingRsvp && (
               <span className="block text-sm text-autumn-gold mb-2">
-                Stai aggiornando la tua risposta precedente
+                Hai già risposto precedentemente. I campi sono precompilati con le tue risposte precedenti. 
+                Quando invii il form, la risposta precedente verrà sostituita completamente.
               </span>
             )}
             Vi preghiamo di confermare la vostra presenza entro il 15 Agosto 2025. Saremo felici di avervi con noi in questo giorno speciale!

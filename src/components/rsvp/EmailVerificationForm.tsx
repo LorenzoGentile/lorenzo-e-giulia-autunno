@@ -43,9 +43,36 @@ const EmailVerificationForm = ({ onEmailVerified }: EmailVerificationFormProps) 
 
   const checkExistingRsvp = async (guestId: string) => {
     try {
+      console.log('=== DETAILED RSVP CHECK START ===');
       console.log('Checking for existing RSVP for guest ID:', guestId);
       
-      // First try with exact match
+      // Try multiple queries to debug the issue
+      console.log('Query 1: Basic select with guest_id filter');
+      const { data: basicQuery, error: basicError } = await supabase
+        .from('rsvp_responses')
+        .select('*')
+        .eq('guest_id', guestId);
+        
+      console.log('Basic query result:', { data: basicQuery, error: basicError });
+      
+      console.log('Query 2: Count query to see if any records exist');
+      const { count, error: countError } = await supabase
+        .from('rsvp_responses')
+        .select('*', { count: 'exact', head: true })
+        .eq('guest_id', guestId);
+        
+      console.log('Count query result:', { count, error: countError });
+      
+      console.log('Query 3: All RSVPs for debugging (limited to 10)');
+      const { data: allRsvps, error: allError } = await supabase
+        .from('rsvp_responses')
+        .select('id, guest_id, attending, created_at')
+        .limit(10);
+        
+      console.log('All RSVPs sample:', { data: allRsvps, error: allError });
+      
+      // Main query with proper ordering
+      console.log('Query 4: Main query with ordering');
       const { data, error } = await supabase
         .from('rsvp_responses')
         .select('id, attending, created_at')
@@ -54,12 +81,13 @@ const EmailVerificationForm = ({ onEmailVerified }: EmailVerificationFormProps) 
         .limit(1);
         
       if (error) {
-        console.error('Error checking existing RSVP:', error);
+        console.error('Error in main RSVP query:', error);
         return null;
       }
       
-      console.log('Existing RSVP check result:', data);
+      console.log('Main query result:', data);
       console.log('Number of existing RSVPs found:', data?.length || 0);
+      console.log('=== DETAILED RSVP CHECK END ===');
       
       if (data && data.length > 0) {
         console.log('Found existing RSVP:', data[0]);

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,6 @@ import Navbar from '@/components/Navbar';
 import CountdownTimer from '@/components/CountdownTimer';
 import OurStory from '@/components/OurStory';
 import EventDetails from '@/components/EventDetails';
-import RsvpForm from '@/components/RsvpForm';
 import Gallery from '@/components/Gallery';
 import GiftRegistry from '@/components/GiftRegistry';
 import Footer from '@/components/Footer';
@@ -118,38 +116,6 @@ const Index = () => {
       
       {/* Event Details Section */}
       <EventDetails />
-      
-      {/* RSVP Section - Show simplified version for non-authenticated users */}
-      {!user || !isInvitedGuest ? (
-        <div className="section-container bg-autumn-cream bg-opacity-10" id="rsvp">
-          <h2 className="section-title">RSVP</h2>
-          <RsvpForm />
-        </div>
-      ) : (
-        <div className="section-container bg-autumn-cream bg-opacity-10" id="rsvp">
-          <h2 className="section-title">RSVP</h2>
-          <div className="text-center">
-            <Card className="autumn-card max-w-2xl mx-auto">
-              <CardHeader>
-                <CardTitle className="text-xl font-playfair text-autumn-burgundy">
-                  Sei già registrato!
-                </CardTitle>
-                <CardDescription>
-                  Gestisci il tuo RSVP dalla tua area personale
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to="/members">
-                  <Button className="autumn-button">
-                    <Users className="w-4 h-4 mr-2" />
-                    Vai all'Area Riservata
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      )}
       
       {/* Gallery Section */}
       <Gallery />

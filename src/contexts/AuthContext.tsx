@@ -22,48 +22,109 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [isInvitedGuest, setIsInvitedGuest] = useState(false);
 
+  const checkInvitedStatus = React.useCallback(async (email: string): Promise<boolean> => {
+    try {
+      console.log('Checking invited status for email:', email);
+      
+      if (!email) {
+        console.log('No email provided to check');
+        return false;
+      }
+      
+      console.log(`Making query to invited_guests table for email: ${email}`);
+      
+      const { data, error, count } = await supabase
+        .from('invited_guests')
+        .select('*', { count: 'exact' })
+        .eq('email', email.toLowerCase());
+        
+      if (error) {
+        console.error('Error checking invited status:', error);
+        return false;
+      }
+      
+      console.log('Invited guests query result:', data);
+      console.log('Count:', count);
+      
+      const isInvited = Boolean(data && data.length > 0);
+      console.log('Is invited:', isInvited);
+      
+      setIsInvitedGuest(isInvited);
+      return isInvited;
+    } catch (error) {
+      console.error('Error checking invited status:', error);
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
+    let mounted = true;
+    
     const setupAuth = async () => {
       try {
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          (event, session) => {
+          async (event, session) => {
+            if (!mounted) return;
+            
             setSession(session);
             setUser(session?.user ?? null);
             
             // If session exists, check if user is invited
-            if (session?.user) {
-              setTimeout(() => {
-                checkInvitedStatus(session.user.email || '');
-              }, 0);
+            if (session?.user?.email) {
+              try {
+                await checkInvitedStatus(session.user.email);
+              } catch (error) {
+                console.error('Error checking invited status:', error);
+                setIsInvitedGuest(false);
+              }
             } else {
               setIsInvitedGuest(false);
+            }
+            
+            if (mounted) {
+              setIsLoading(false);
             }
           }
         );
         
         // Check for existing session
         const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         // Check if user is invited
         if (session?.user?.email) {
-          const isInvited = await checkInvitedStatus(session.user.email);
-          setIsInvitedGuest(isInvited);
+          try {
+            await checkInvitedStatus(session.user.email);
+          } catch (error) {
+            console.error('Error checking invited status:', error);
+            setIsInvitedGuest(false);
+          }
         }
         
         setIsLoading(false);
         
-        return () => subscription.unsubscribe();
+        return () => {
+          subscription.unsubscribe();
+        };
       } catch (error) {
         console.error('Error setting up auth:', error);
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
     
     setupAuth();
-  }, []);
+    
+    return () => {
+      mounted = false;
+    };
+  }, [checkInvitedStatus]);
   
   const signIn = async (email: string, password: string) => {
     try {
@@ -98,45 +159,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     }
   };
-  
-  const checkInvitedStatus = async (email: string): Promise<boolean> => {
-    try {
-      console.log('Checking invited status for email:', email);
-      
-      if (!email) {
-        console.log('No email provided to check');
-        return false;
-      }
-      
-      // Log the query we're about to make for debugging
-      console.log(`Making query to invited_guests table for email: ${email}`);
-      
-      const { data, error, count } = await supabase
-        .from('invited_guests')
-        .select('*', { count: 'exact' })
-        .eq('email', email.toLowerCase());
-        
-      if (error) {
-        console.error('Error checking invited status:', error);
-        return false;
-      }
-      
-      console.log('Invited guests query result:', data);
-      console.log('Count:', count);
-      
-      // Check if data array has any items
-      const isInvited = Boolean(data && data.length > 0);
-      console.log('Is invited:', isInvited);
-      
-      setIsInvitedGuest(isInvited);
-      return isInvited;
-    } catch (error) {
-      console.error('Error checking invited status:', error);
-      return false;
-    }
-  };
 
-  const value = {
+  const value = React.useMemo(() => ({
     session,
     user,
     isLoading,
@@ -144,7 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     isInvitedGuest,
     checkInvitedStatus
-  };
+  }), [session, user, isLoading, isInvitedGuest, checkInvitedStatus]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

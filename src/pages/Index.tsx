@@ -1,20 +1,14 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Heart, Camera } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import CountdownTimer from '@/components/CountdownTimer';
 import OurStory from '@/components/OurStory';
 import EventDetails from '@/components/EventDetails';
+import RsvpForm from '@/components/RsvpForm';
 import Gallery from '@/components/Gallery';
 import GiftRegistry from '@/components/GiftRegistry';
 import Footer from '@/components/Footer';
 
 const Index = () => {
-  const { user, isInvitedGuest } = useAuth();
-
   // Smooth scrolling for anchor links
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
@@ -56,45 +50,6 @@ const Index = () => {
           </p>
           <div className="bg-white bg-opacity-90 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
             <CountdownTimer />
-            
-            {/* Members Area CTA for authenticated users */}
-            {user && isInvitedGuest && (
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <Card className="autumn-card">
-                  <CardHeader className="text-center pb-4">
-                    <CardTitle className="text-xl font-playfair text-autumn-burgundy flex items-center justify-center gap-2">
-                      <Users className="w-5 h-5" />
-                      Area Riservata Invitati
-                    </CardTitle>
-                    <CardDescription>
-                      Accedi alla tua area personale per gestire RSVP e foto
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                      <div className="text-center">
-                        <Heart className="w-8 h-8 text-autumn-terracotta mx-auto mb-1" />
-                        <span className="text-xs font-medium text-gray-600">RSVP</span>
-                      </div>
-                      <div className="text-center">
-                        <Camera className="w-8 h-8 text-autumn-terracotta mx-auto mb-1" />
-                        <span className="text-xs font-medium text-gray-600">Galleria</span>
-                      </div>
-                      <div className="text-center">
-                        <Users className="w-8 h-8 text-autumn-terracotta mx-auto mb-1" />
-                        <span className="text-xs font-medium text-gray-600">Carica</span>
-                      </div>
-                    </div>
-                    <Link to="/members">
-                      <Button className="autumn-button w-full">
-                        <Users className="w-4 h-4 mr-2" />
-                        Accedi all'Area Riservata
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -116,6 +71,9 @@ const Index = () => {
       
       {/* Event Details Section */}
       <EventDetails />
+      
+      {/* RSVP Section */}
+      <RsvpForm />
       
       {/* Gallery Section */}
       <Gallery />

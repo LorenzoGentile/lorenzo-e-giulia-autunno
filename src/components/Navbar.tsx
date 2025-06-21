@@ -4,11 +4,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Users } from 'lucide-react';
+import { User } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user, isInvitedGuest, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   
   // Handle navbar background change on scroll
   useEffect(() => {
@@ -27,13 +27,13 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/', isExternal: false },
-    { name: 'La Nostra Storia', href: '/#storia', isExternal: true },
-    { name: 'Dettagli Evento', href: '/#dettagli', isExternal: true },
-    { name: 'RSVP', href: user && isInvitedGuest ? '/members' : '/auth', isExternal: false },
-    { name: 'Galleria', href: '/#galleria', isExternal: true },
-    { name: 'Foto', href: '/photos', isExternal: false },
-    { name: 'Lista Nozze', href: '/#lista-nozze', isExternal: true },
+    { name: 'Home', href: '/' },
+    { name: 'La Nostra Storia', href: '/#storia' },
+    { name: 'Dettagli Evento', href: '/#dettagli' },
+    { name: 'RSVP', href: '/#rsvp' },
+    { name: 'Galleria', href: '/#galleria' },
+    { name: 'Foto', href: '/photos' },
+    { name: 'Lista Nozze', href: '/#lista-nozze' },
   ];
   
   const handleLogout = async () => {
@@ -54,56 +54,34 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-6">
-            {navLinks.map(link => 
-              link.isExternal ? (
-                <a 
-                  key={link.name}
-                  href={link.href} 
-                  className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
-                >
-                  {link.name}
-                </a>
-              ) : (
-                <Link 
-                  key={link.name}
-                  to={link.href} 
-                  className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
-                >
-                  {link.name}
-                </Link>
-              )
-            )}
+            {navLinks.map(link => (
+              <a 
+                key={link.name}
+                href={link.href} 
+                className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+              >
+                {link.name}
+              </a>
+            ))}
           </div>
 
           {/* User authentication */}
-          <div className="hidden md:flex items-center space-x-3">
-            {user && isInvitedGuest ? (
-              <>
-                <Link to="/members">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white"
-                  >
-                    <Users className="w-4 h-4 mr-1" />
-                    Area Riservata
-                  </Button>
-                </Link>
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm text-autumn-burgundy font-medium">
-                    <User className="inline-block mr-1 w-4 h-4" />
-                    {user.email?.split('@')[0]}
-                  </span>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleLogout}
-                    className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white"
-                  >
-                    Esci
-                  </Button>
-                </div>
-              </>
+          <div className="hidden md:flex items-center">
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-autumn-burgundy font-medium">
+                  <User className="inline-block mr-1 w-4 h-4" />
+                  {user.email?.split('@')[0]}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white"
+                >
+                  Esci
+                </Button>
+              </div>
             ) : (
               <Link to="/auth">
                 <Button 
@@ -133,36 +111,20 @@ const Navbar = () => {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                {navLinks.map(link => 
-                  link.isExternal ? (
-                    <a 
-                      key={link.name}
-                      href={link.href} 
-                      className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
-                    >
-                      {link.name}
-                    </a>
-                  ) : (
-                    <Link 
-                      key={link.name}
-                      to={link.href} 
-                      className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
-                    >
-                      {link.name}
-                    </Link>
-                  )
-                )}
+                {navLinks.map(link => (
+                  <a 
+                    key={link.name}
+                    href={link.href} 
+                    className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+                  >
+                    {link.name}
+                  </a>
+                ))}
                 
                 <div className="pt-4 border-t border-gray-200">
-                  {user && isInvitedGuest ? (
+                  {user ? (
                     <div className="space-y-3">
-                      <Link to="/members" className="block">
-                        <Button className="w-full autumn-button mb-3">
-                          <Users className="w-4 h-4 mr-2" />
-                          Area Riservata
-                        </Button>
-                      </Link>
-                      <div className="flex items-center mb-3">
+                      <div className="flex items-center">
                         <User className="w-5 h-5 mr-2 text-autumn-burgundy" />
                         <span className="text-autumn-burgundy font-medium">
                           {user.email?.split('@')[0]}

@@ -67,8 +67,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           async (event, session) => {
             if (!mounted) return;
             
+            console.log('Auth state change:', event, session?.user?.email);
+            
             setSession(session);
             setUser(session?.user ?? null);
+            
+            // Handle sign out event specifically
+            if (event === 'SIGNED_OUT') {
+              console.log('User signed out, clearing state');
+              setIsInvitedGuest(false);
+              setSession(null);
+              setUser(null);
+            }
             
             // If session exists, check if user is invited
             if (session?.user?.email) {
@@ -150,9 +160,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const signOut = async () => {
     try {
+      console.log('Attempting to sign out...');
+      
+      // Clear local state immediately
+      setIsLoading(true);
+      
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        throw error;
+      }
+      
+      console.log('Sign out successful');
+      
+      // Clear all auth-related state
+      setSession(null);
+      setUser(null);
+      setIsInvitedGuest(false);
+      setIsLoading(false);
+      
+      toast.success('Logout successful');
+      
     } catch (error: any) {
+      console.error('Sign out failed:', error);
+      setIsLoading(false);
       toast.error('Sign out failed', { 
         description: error.message || 'Unable to sign out'
       });

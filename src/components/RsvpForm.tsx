@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
 import EmailVerificationForm from './rsvp/EmailVerificationForm';
 import RsvpFormFields from './rsvp/RsvpFormFields';
 import { fetchGuestInfo, GuestInfo, submitRsvpResponse } from '@/integrations/supabase/supabase-rsvp';
@@ -26,7 +28,7 @@ interface ExistingRsvp {
 
 const RsvpForm = () => {
   const { user, isInvitedGuest } = useAuth();
-  const [step, setStep] = useState<'email' | 'rsvp'>('email');
+  const [step, setStep] = useState<'email' | 'auth-required' | 'rsvp'>('email');
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [guestInfo, setGuestInfo] = useState<GuestInfo | null>(null);
   const [existingRsvp, setExistingRsvp] = useState<ExistingRsvp | null>(null);
@@ -118,7 +120,20 @@ const RsvpForm = () => {
       setExistingRsvp(null);
     }
     
-    setStep('rsvp');
+    // Check if user is logged in before proceeding to RSVP form
+    if (!user) {
+      console.log('User not logged in, showing auth required step');
+      setStep('auth-required');
+    } else if (user.email?.toLowerCase() !== email.toLowerCase()) {
+      console.log('User logged in with different email, showing auth required step');
+      toast.error('Email non corrispondente', {
+        description: 'Sei loggato con un\'email diversa da quella verificata. Per favore accedi con l\'email corretta.',
+      });
+      setStep('auth-required');
+    } else {
+      console.log('User logged in with correct email, proceeding to RSVP form');
+      setStep('rsvp');
+    }
   };
   
   const handleRsvpSubmitted = () => {
@@ -129,7 +144,7 @@ const RsvpForm = () => {
       setGuestInfo(null);
       setExistingRsvp(null);
     } else {
-      toast.success('Thank you for your RSVP!');
+      toast.success('Grazie per il tuo RSVP!');
     }
   };
 
@@ -169,6 +184,23 @@ const RsvpForm = () => {
 
   const handleSubmitRsvp = async (formData: RsvpFormValues) => {
     if (!guestInfo) return;
+    
+    // Double-check authentication before submission
+    if (!user) {
+      toast.error('Accesso richiesto', {
+        description: 'Devi essere loggato per inviare l\'RSVP.',
+      });
+      setStep('auth-required');
+      return;
+    }
+    
+    if (user.email?.toLowerCase() !== verifiedEmail.toLowerCase()) {
+      toast.error('Email non corrispondente', {
+        description: 'L\'email con cui sei loggato non corrisponde a quella verificata.',
+      });
+      setStep('auth-required');
+      return;
+    }
     
     setIsSubmitting(true);
     
@@ -245,12 +277,47 @@ const RsvpForm = () => {
           </p>
           <EmailVerificationForm onEmailVerified={handleEmailVerified} />
         </>
+      ) : step === 'auth-required' ? (
+        <>
+          <div className="max-w-xl mx-auto autumn-card text-center">
+            <h3 className="text-xl font-semibold text-autumn-burgundy mb-4">
+              Accesso Richiesto
+            </h3>
+            <p className="text-gray-700 mb-6">
+              Per inviare il tuo RSVP, devi prima accedere al tuo account con l'email verificata.
+            </p>
+            {verifiedEmail && (
+              <p className="text-sm text-autumn-terracotta mb-6">
+                Email verificata: <strong>{verifiedEmail}</strong>
+              </p>
+            )}
+            <div className="space-y-4">
+              <Link to="/auth">
+                <Button className="autumn-button w-full">
+                  Accedi / Registrati
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => setStep('email')}
+                className="w-full"
+              >
+                Torna alla Verifica Email
+              </Button>
+            </div>
+          </div>
+        </>
       ) : (
         <>
           <p className="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
             {verifiedEmail && (
               <span className="block font-medium text-autumn-terracotta mb-2">
                 Email verificata: {verifiedEmail}
+              </span>
+            )}
+            {user && (
+              <span className="block text-sm text-green-600 mb-2">
+                ✓ Sei loggato come: {user.email}
               </span>
             )}
             {existingRsvp && (

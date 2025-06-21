@@ -27,13 +27,13 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'La Nostra Storia', href: '/#storia' },
-    { name: 'Dettagli Evento', href: '/#dettagli' },
-    { name: 'RSVP', href: user && isInvitedGuest ? '/members' : '/auth' },
-    { name: 'Galleria', href: '/#galleria' },
-    { name: 'Foto', href: '/photos' },
-    { name: 'Lista Nozze', href: '/#lista-nozze' },
+    { name: 'Home', href: '/', isExternal: false },
+    { name: 'La Nostra Storia', href: '/#storia', isExternal: true },
+    { name: 'Dettagli Evento', href: '/#dettagli', isExternal: true },
+    { name: 'RSVP', href: user && isInvitedGuest ? '/members' : '/auth', isExternal: false },
+    { name: 'Galleria', href: '/#galleria', isExternal: true },
+    { name: 'Foto', href: '/photos', isExternal: false },
+    { name: 'Lista Nozze', href: '/#lista-nozze', isExternal: true },
   ];
   
   const handleLogout = async () => {
@@ -54,15 +54,25 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-6">
-            {navLinks.map(link => (
-              <a 
-                key={link.name}
-                href={link.href} 
-                className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
-              >
-                {link.name}
-              </a>
-            ))}
+            {navLinks.map(link => 
+              link.isExternal ? (
+                <a 
+                  key={link.name}
+                  href={link.href} 
+                  className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <Link 
+                  key={link.name}
+                  to={link.href} 
+                  className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+                >
+                  {link.name}
+                </Link>
+              )
+            )}
           </div>
 
           {/* User authentication */}
@@ -123,15 +133,25 @@ const Navbar = () => {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                {navLinks.map(link => (
-                  <a 
-                    key={link.name}
-                    href={link.href} 
-                    className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
-                  >
-                    {link.name}
-                  </a>
-                ))}
+                {navLinks.map(link => 
+                  link.isExternal ? (
+                    <a 
+                      key={link.name}
+                      href={link.href} 
+                      className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link 
+                      key={link.name}
+                      to={link.href} 
+                      className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+                    >
+                      {link.name}
+                    </Link>
+                  )
+                )}
                 
                 <div className="pt-4 border-t border-gray-200">
                   {user && isInvitedGuest ? (

@@ -30,7 +30,7 @@ const Navbar = () => {
     { name: 'Home', href: '/' },
     { name: 'La Nostra Storia', href: '/#storia' },
     { name: 'Dettagli Evento', href: '/#dettagli' },
-    { name: 'RSVP', href: '/#rsvp' },
+    { name: 'RSVP', href: user && isInvitedGuest ? '/members' : '/auth' },
     { name: 'Galleria', href: '/#galleria' },
     { name: 'Foto', href: '/photos' },
     { name: 'Lista Nozze', href: '/#lista-nozze' },

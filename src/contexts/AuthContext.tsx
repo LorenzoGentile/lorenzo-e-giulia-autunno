@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (event, session) => {
+            console.log('Auth state changed:', event, session?.user?.email);
             setSession(session);
             setUser(session?.user ?? null);
             
@@ -44,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Check for existing session
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('Initial session check:', session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -108,22 +110,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
       
-      // Log the query we're about to make for debugging
-      console.log(`Making query to invited_guests table for email: ${email}`);
+      // Normalize email to lowercase for consistent comparison
+      const normalizedEmail = email.toLowerCase().trim();
+      console.log(`Making query to invited_guests table for email: ${normalizedEmail}`);
       
-      // Use ilike for case-insensitive comparison and get count
-      const { data, error, count } = await supabase
+      // Use exact match for better performance
+      const { data, error } = await supabase
         .from('invited_guests')
-        .select('*', { count: 'exact' })
-        .ilike('email', email.toLowerCase());
+        .select('id, email')
+        .eq('email', normalizedEmail)
+        .limit(1);
         
       if (error) {
         console.error('Error checking invited status:', error);
-        return false;
+        // Try with case-insensitive search as fallback
+        const fallbackResult = await supabase
+          .from('invited_guests')
+          .select('id, email')
+          .ilike('email', normalizedEmail)
+          .limit(1);
+          
+        if (fallbackResult.error) {
+          console.error('Fallback search also failed:', fallbackResult.error);
+          return false;
+        }
+        
+        console.log('Fallback invited guests query result:', fallbackResult.data);
+        const isInvited = Boolean(fallbackResult.data && fallbackResult.data.length > 0);
+        console.log('Is invited (fallback):', isInvited);
+        setIsInvitedGuest(isInvited);
+        return isInvited;
       }
       
       console.log('Invited guests query result:', data);
-      console.log('Count:', count);
       
       // Check if data array has any items
       const isInvited = Boolean(data && data.length > 0);

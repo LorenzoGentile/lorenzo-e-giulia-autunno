@@ -10,15 +10,29 @@ export const fetchGuestInfo = async (email: string): Promise<GuestInfo | null> =
   try {
     console.log('fetchGuestInfo called with email:', email);
     
-    const { data, error } = await supabase
+    // Use exact match first, then try case-insensitive
+    let { data, error } = await supabase
       .from('invited_guests')
       .select('id, name')
-      .ilike('email', email.toLowerCase())
+      .eq('email', email.toLowerCase())
       .limit(1);
       
     if (error) {
-      console.error('Error fetching guest info:', error);
-      return null;
+      console.error('Error with exact match:', error);
+      
+      // Try case-insensitive search as fallback
+      const fallbackResult = await supabase
+        .from('invited_guests')
+        .select('id, name')
+        .ilike('email', email.toLowerCase())
+        .limit(1);
+        
+      if (fallbackResult.error) {
+        console.error('Error with case-insensitive search:', fallbackResult.error);
+        return null;
+      }
+      
+      data = fallbackResult.data;
     }
     
     console.log('fetchGuestInfo database response:', data);

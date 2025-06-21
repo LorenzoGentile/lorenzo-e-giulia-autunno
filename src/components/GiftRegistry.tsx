@@ -1,8 +1,25 @@
 
 import React from 'react';
-import { Gift } from 'lucide-react';
+import { Gift, Copy } from 'lucide-react';
+import { toast } from 'sonner';
 
 const GiftRegistry = () => {
+  const bankDetails = {
+    intestatario: "Lorenzo Rossi e Giulia Bianchi",
+    iban: "IT12A0123456789000000123456",
+    causale: "Regalo Matrimonio Lorenzo e Giulia"
+  };
+
+  const copyBankDetails = () => {
+    const textToCopy = `Intestatario: ${bankDetails.intestatario}\nIBAN: ${bankDetails.iban}\nCausale: ${bankDetails.causale}`;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      toast.success('Coordinate bancarie copiate negli appunti!');
+    }).catch(() => {
+      toast.error('Errore durante la copia. Riprova.');
+    });
+  };
+
   return (
     <div className="section-container bg-autumn-cream bg-opacity-20" id="regalo">
       <h2 className="section-title">Lista Nozze</h2>
@@ -23,10 +40,25 @@ const GiftRegistry = () => {
             <h4 className="text-xl font-playfair text-autumn-terracotta mb-2">
               Coordinate Bancarie
             </h4>
-            <div className="bg-autumn-amber bg-opacity-20 rounded-lg p-4 max-w-md">
-              <p className="mb-1"><span className="font-semibold">Intestatario:</span> Lorenzo Rossi e Giulia Bianchi</p>
-              <p className="mb-1"><span className="font-semibold">IBAN:</span> IT12A0123456789000000123456</p>
-              <p><span className="font-semibold">Causale:</span> Regalo Matrimonio Lorenzo e Giulia</p>
+            <div className="bg-autumn-amber bg-opacity-20 rounded-lg p-4 max-w-md relative">
+              <p className="mb-1">
+                <span className="font-semibold">Intestatario:</span> {bankDetails.intestatario}
+              </p>
+              <p className="mb-1">
+                <span className="font-semibold">IBAN:</span> {bankDetails.iban}
+              </p>
+              <p className="mb-3">
+                <span className="font-semibold">Causale:</span> {bankDetails.causale}
+              </p>
+              
+              <button
+                onClick={copyBankDetails}
+                className="flex items-center justify-center gap-2 w-full bg-autumn-terracotta text-white px-4 py-2 rounded-md hover:bg-autumn-burgundy transition-colors duration-200 text-sm font-medium"
+                aria-label="Copia coordinate bancarie"
+              >
+                <Copy className="w-4 h-4" />
+                Copia Coordinate
+              </button>
             </div>
           </div>
         </div>

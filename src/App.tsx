@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Photos from "./pages/Photos";
 import Auth from "./pages/Auth";
+import Members from "./pages/Members";
 import AutumnLeaves from "./components/AutumnLeaves";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/photos" element={<Photos />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/members" element={<Members />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

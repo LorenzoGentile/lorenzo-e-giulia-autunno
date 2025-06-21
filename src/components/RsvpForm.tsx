@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -6,19 +7,21 @@ import RsvpFormFields from './rsvp/RsvpFormFields';
 import { fetchGuestInfo, GuestInfo, submitRsvpResponse } from '@/integrations/supabase/supabase-rsvp';
 import { RsvpFormValues } from '@/types/rsvp';
 import { supabase } from '@/integrations/supabase/client';
+
 interface AdditionalGuest {
   id: string;
   rsvp_id: string;
   name: string;
   dietary_restrictions?: string;
 }
+
 interface ExistingRsvp {
   id: string;
   attending: boolean;
   created_at: string;
   dietary_restrictions?: string;
   message?: string;
-  additional_guests?: AdditionalGuest[]; // <-- add this!
+  additional_guests?: AdditionalGuest[];
 }
 
 const RsvpForm = () => {
@@ -193,9 +196,7 @@ const RsvpForm = () => {
   };
 
   return (
-    <div className="section-container bg-autumn-cream bg-opacity-10" id="rsvp">
-      <h2 className="section-title">RSVP</h2>
-      
+    <div>
       {step === 'email' ? (
         <>
           <p className="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
@@ -205,7 +206,7 @@ const RsvpForm = () => {
         </>
       ) : (
         <>
-          <p className="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
+          <div className="text-center mb-8">
             {verifiedEmail && (
               <span className="block font-medium text-autumn-terracotta mb-2">
                 Email verificata: {verifiedEmail}
@@ -216,8 +217,10 @@ const RsvpForm = () => {
                 Stai aggiornando la tua risposta precedente
               </span>
             )}
-            Vi preghiamo di confermare la vostra presenza entro il 15 Agosto 2025. Saremo felici di avervi con noi in questo giorno speciale!
-          </p>
+            <p className="text-gray-700 max-w-2xl mx-auto">
+              Vi preghiamo di confermare la vostra presenza entro il 15 Agosto 2025. Saremo felici di avervi con noi in questo giorno speciale!
+            </p>
+          </div>
           
           {guestInfo && (
             <RsvpFormFields 

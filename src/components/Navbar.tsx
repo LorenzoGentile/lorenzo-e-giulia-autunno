@@ -4,11 +4,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { User } from 'lucide-react';
+import { User, Users } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, isInvitedGuest, signOut } = useAuth();
   
   // Handle navbar background change on scroll
   useEffect(() => {
@@ -66,22 +66,34 @@ const Navbar = () => {
           </div>
 
           {/* User authentication */}
-          <div className="hidden md:flex items-center">
-            {user ? (
-              <div className="flex items-center space-x-3">
-                <span className="text-sm text-autumn-burgundy font-medium">
-                  <User className="inline-block mr-1 w-4 h-4" />
-                  {user.email?.split('@')[0]}
-                </span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleLogout}
-                  className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white"
-                >
-                  Esci
-                </Button>
-              </div>
+          <div className="hidden md:flex items-center space-x-3">
+            {user && isInvitedGuest ? (
+              <>
+                <Link to="/members">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white"
+                  >
+                    <Users className="w-4 h-4 mr-1" />
+                    Area Riservata
+                  </Button>
+                </Link>
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-autumn-burgundy font-medium">
+                    <User className="inline-block mr-1 w-4 h-4" />
+                    {user.email?.split('@')[0]}
+                  </span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleLogout}
+                    className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white"
+                  >
+                    Esci
+                  </Button>
+                </div>
+              </>
             ) : (
               <Link to="/auth">
                 <Button 
@@ -122,9 +134,15 @@ const Navbar = () => {
                 ))}
                 
                 <div className="pt-4 border-t border-gray-200">
-                  {user ? (
+                  {user && isInvitedGuest ? (
                     <div className="space-y-3">
-                      <div className="flex items-center">
+                      <Link to="/members" className="block">
+                        <Button className="w-full autumn-button mb-3">
+                          <Users className="w-4 h-4 mr-2" />
+                          Area Riservata
+                        </Button>
+                      </Link>
+                      <div className="flex items-center mb-3">
                         <User className="w-5 h-5 mr-2 text-autumn-burgundy" />
                         <span className="text-autumn-burgundy font-medium">
                           {user.email?.split('@')[0]}

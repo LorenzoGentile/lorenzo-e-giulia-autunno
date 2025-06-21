@@ -10,11 +10,9 @@ const GiftRegistry = () => {
     causale: "Regalo Matrimonio Lorenzo e Giulia"
   };
 
-  const copyBankDetails = () => {
-    const textToCopy = `Intestatario: ${bankDetails.intestatario}\nIBAN: ${bankDetails.iban}\nCausale: ${bankDetails.causale}`;
-    
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      toast.success('Coordinate bancarie copiate negli appunti!');
+  const copyToClipboard = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${fieldName} copiato negli appunti!`);
     }).catch(() => {
       toast.error('Errore durante la copia. Riprova.');
     });
@@ -40,25 +38,45 @@ const GiftRegistry = () => {
             <h4 className="text-xl font-playfair text-autumn-terracotta mb-2">
               Coordinate Bancarie
             </h4>
-            <div className="bg-autumn-amber bg-opacity-20 rounded-lg p-4 max-w-md relative">
-              <p className="mb-1">
-                <span className="font-semibold">Intestatario:</span> {bankDetails.intestatario}
-              </p>
-              <p className="mb-1">
-                <span className="font-semibold">IBAN:</span> {bankDetails.iban}
-              </p>
-              <p className="mb-3">
-                <span className="font-semibold">Causale:</span> {bankDetails.causale}
-              </p>
+            <div className="bg-autumn-amber bg-opacity-20 rounded-lg p-4 max-w-md">
+              <div className="flex items-center justify-between mb-2">
+                <p className="flex-1">
+                  <span className="font-semibold">Intestatario:</span> {bankDetails.intestatario}
+                </p>
+                <button
+                  onClick={() => copyToClipboard(bankDetails.intestatario, 'Intestatario')}
+                  className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200"
+                  aria-label="Copia intestatario"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
               
-              <button
-                onClick={copyBankDetails}
-                className="flex items-center justify-center gap-2 w-full bg-autumn-terracotta text-white px-4 py-2 rounded-md hover:bg-autumn-burgundy transition-colors duration-200 text-sm font-medium"
-                aria-label="Copia coordinate bancarie"
-              >
-                <Copy className="w-4 h-4" />
-                Copia Coordinate
-              </button>
+              <div className="flex items-center justify-between mb-2">
+                <p className="flex-1">
+                  <span className="font-semibold">IBAN:</span> {bankDetails.iban}
+                </p>
+                <button
+                  onClick={() => copyToClipboard(bankDetails.iban, 'IBAN')}
+                  className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200"
+                  aria-label="Copia IBAN"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <p className="flex-1">
+                  <span className="font-semibold">Causale:</span> {bankDetails.causale}
+                </p>
+                <button
+                  onClick={() => copyToClipboard(bankDetails.causale, 'Causale')}
+                  className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200"
+                  aria-label="Copia causale"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>

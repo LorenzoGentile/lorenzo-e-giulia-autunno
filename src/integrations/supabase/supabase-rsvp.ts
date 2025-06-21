@@ -8,18 +8,26 @@ export interface GuestInfo {
 
 export const fetchGuestInfo = async (email: string): Promise<GuestInfo | null> => {
   try {
+    console.log('fetchGuestInfo called with email:', email);
+    
     const { data, error } = await supabase
       .from('invited_guests')
       .select('id, name')
-      .eq('email', email.toLowerCase())
-      .single();
+      .ilike('email', email.toLowerCase())
+      .limit(1);
       
     if (error) {
       console.error('Error fetching guest info:', error);
       return null;
     }
     
-    return data;
+    console.log('fetchGuestInfo database response:', data);
+    
+    if (data && data.length > 0) {
+      return data[0];
+    }
+    
+    return null;
   } catch (error) {
     console.error('Error fetching guest info:', error);
     return null;
@@ -34,6 +42,8 @@ export const submitRsvpResponse = async (
   additionalGuests: Array<{ name: string; dietaryRestrictions?: string }>
 ) => {
   try {
+    console.log('Submitting RSVP for guest ID:', guestId);
+    
     // Insert RSVP response
     const { data: rsvpData, error: rsvpError } = await supabase
       .from('rsvp_responses')
@@ -46,7 +56,12 @@ export const submitRsvpResponse = async (
       .select('id')
       .single();
       
-    if (rsvpError) throw rsvpError;
+    if (rsvpError) {
+      console.error('Error inserting RSVP response:', rsvpError);
+      throw rsvpError;
+    }
+    
+    console.log('RSVP response inserted:', rsvpData);
     
     // Insert additional guests if attending and there are any
     if (attending && additionalGuests.length > 0 && rsvpData?.id) {
@@ -59,11 +74,18 @@ export const submitRsvpResponse = async (
         }));
         
       if (additionalGuestsToInsert.length > 0) {
+        console.log('Inserting additional guests:', additionalGuestsToInsert);
+        
         const { error: additionalGuestsError } = await supabase
           .from('additional_guests')
           .insert(additionalGuestsToInsert);
           
-        if (additionalGuestsError) throw additionalGuestsError;
+        if (additionalGuestsError) {
+          console.error('Error inserting additional guests:', additionalGuestsError);
+          throw additionalGuestsError;
+        }
+        
+        console.log('Additional guests inserted successfully');
       }
     }
     

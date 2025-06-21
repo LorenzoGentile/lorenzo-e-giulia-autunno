@@ -111,10 +111,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Log the query we're about to make for debugging
       console.log(`Making query to invited_guests table for email: ${email}`);
       
+      // Use ilike for case-insensitive comparison and get count
       const { data, error, count } = await supabase
         .from('invited_guests')
         .select('*', { count: 'exact' })
-        .eq('email', email.toLowerCase());
+        .ilike('email', email.toLowerCase());
         
       if (error) {
         console.error('Error checking invited status:', error);

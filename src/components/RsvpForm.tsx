@@ -218,9 +218,9 @@ const RsvpForm = () => {
       return baseValues;
     }
     
-    const defaultValues = {
+    const defaultValues: Partial<RsvpFormValues> = {
       ...baseValues,
-      attending: existingRsvp.attending ? 'yes' : 'no',
+      attending: existingRsvp.attending ? ('yes' as const) : ('no' as const),
       dietaryRestrictions: existingRsvp.dietary_restrictions || '',
       songRequest: existingRsvp.message || '',
       additionalGuests: existingRsvp.additional_guests?.map(guest => ({

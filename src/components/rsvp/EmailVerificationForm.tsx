@@ -44,10 +44,13 @@ const EmailVerificationForm = ({ onEmailVerified }: EmailVerificationFormProps) 
   const checkExistingRsvp = async (guestId: string) => {
     try {
       console.log('Checking for existing RSVP for guest ID:', guestId);
+      
+      // First try with exact match
       const { data, error } = await supabase
         .from('rsvp_responses')
         .select('id, attending, created_at')
         .eq('guest_id', guestId)
+        .order('created_at', { ascending: false })
         .limit(1);
         
       if (error) {
@@ -56,7 +59,15 @@ const EmailVerificationForm = ({ onEmailVerified }: EmailVerificationFormProps) 
       }
       
       console.log('Existing RSVP check result:', data);
-      return data && data.length > 0 ? data[0] : null;
+      console.log('Number of existing RSVPs found:', data?.length || 0);
+      
+      if (data && data.length > 0) {
+        console.log('Found existing RSVP:', data[0]);
+        return data[0];
+      }
+      
+      console.log('No existing RSVP found for guest ID:', guestId);
+      return null;
     } catch (error) {
       console.error('Error checking existing RSVP:', error);
       return null;
@@ -74,10 +85,13 @@ const EmailVerificationForm = ({ onEmailVerified }: EmailVerificationFormProps) 
       console.log('Guest info result:', guestInfo);
       
       if (guestInfo) {
+        console.log('Guest found, checking for existing RSVP with guest ID:', guestInfo.id);
+        
         // Check if this guest has already submitted an RSVP
         const existingRsvp = await checkExistingRsvp(guestInfo.id);
         
         if (existingRsvp) {
+          console.log('Existing RSVP found:', existingRsvp);
           const attendingStatus = existingRsvp.attending ? 'attending' : 'not attending';
           const submissionDate = new Date(existingRsvp.created_at).toLocaleDateString();
           
@@ -89,6 +103,8 @@ const EmailVerificationForm = ({ onEmailVerified }: EmailVerificationFormProps) 
           // Pass existing RSVP data to allow updates
           onEmailVerified(values.email, guestInfo, existingRsvp);
           return;
+        } else {
+          console.log('No existing RSVP found for this guest');
         }
         
         // If no existing RSVP, proceed with verification

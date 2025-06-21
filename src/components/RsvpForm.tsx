@@ -36,10 +36,20 @@ const RsvpForm = () => {
   useEffect(() => {
     const checkUserAndInitialize = async () => {
       if (user?.email && isInvitedGuest) {
+        console.log('User is logged in and invited, checking guest info for:', user.email);
         const info = await fetchGuestInfo(user.email);
         if (info) {
+          console.log('Guest info found for logged in user:', info);
           setGuestInfo(info);
           setVerifiedEmail(user.email);
+          
+          // Check for existing RSVP for this logged-in user
+          const existingRsvpData = await fetchExistingRsvpDetails(info.id);
+          if (existingRsvpData) {
+            console.log('Found existing RSVP for logged-in user:', existingRsvpData);
+            setExistingRsvp(existingRsvpData);
+          }
+          
           setStep('rsvp');
         }
       }
@@ -48,16 +58,31 @@ const RsvpForm = () => {
     checkUserAndInitialize();
   }, [user, isInvitedGuest]);
 
-  const fetchExistingRsvpDetails = async (rsvpId: string) => {
+  const fetchExistingRsvpDetails = async (guestId: string) => {
     try {
+      console.log('Fetching existing RSVP details for guest ID:', guestId);
+      
       const { data, error } = await supabase
         .from('rsvp_responses')
         .select('*, additional_guests(*)')
-        .eq('id', rsvpId)
-        .single();
+        .eq('guest_id', guestId)
+        .order('created_at', { ascending: false })
+        .limit(1);
       
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching existing RSVP details:', error);
+        throw error;
+      }
+      
+      console.log('Raw RSVP query result:', data);
+      
+      if (data && data.length > 0) {
+        console.log('Found existing RSVP details:', data[0]);
+        return data[0];
+      }
+      
+      console.log('No existing RSVP details found');
+      return null;
     } catch (error) {
       console.error('Error fetching existing RSVP details:', error);
       return null;
@@ -65,15 +90,32 @@ const RsvpForm = () => {
   };
 
   const handleEmailVerified = async (email: string, info: GuestInfo, existingRsvpData?: { id: string; attending: boolean; created_at: string }) => {
+    console.log('Email verified:', email, 'Guest info:', info, 'Existing RSVP basic data:', existingRsvpData);
+    
     setVerifiedEmail(email);
     setGuestInfo(info);
     
     if (existingRsvpData) {
+      console.log('Fetching full RSVP details for existing RSVP ID:', existingRsvpData.id);
       // Fetch full RSVP details including additional guests
-      const fullRsvpData = await fetchExistingRsvpDetails(existingRsvpData.id);
+      const fullRsvpData = await fetchExistingRsvpDetails(info.id);
       if (fullRsvpData) {
+        console.log('Setting full existing RSVP data:', fullRsvpData);
         setExistingRsvp(fullRsvpData);
+      } else {
+        console.log('Could not fetch full RSVP details, but we know one exists');
+        // If we can't fetch full details but we know an RSVP exists, 
+        // create a minimal existing RSVP object
+        setExistingRsvp({
+          id: existingRsvpData.id,
+          attending: existingRsvpData.attending,
+          created_at: existingRsvpData.created_at,
+          additional_guests: []
+        });
       }
+    } else {
+      console.log('No existing RSVP data provided');
+      setExistingRsvp(null);
     }
     
     setStep('rsvp');
@@ -131,7 +173,10 @@ const RsvpForm = () => {
     setIsSubmitting(true);
     
     try {
+      console.log('Submitting RSVP. Existing RSVP:', existingRsvp);
+      
       if (existingRsvp) {
+        console.log('Deleting existing RSVP before creating new one');
         // Delete existing RSVP and additional guests before creating new ones
         await deleteExistingRsvp(existingRsvp.id);
         toast.success('Risposta precedente rimossa. Creazione nuova risposta...');
@@ -169,10 +214,11 @@ const RsvpForm = () => {
     };
     
     if (!existingRsvp) {
+      console.log('No existing RSVP, using base values:', baseValues);
       return baseValues;
     }
     
-    return {
+    const defaultValues = {
       ...baseValues,
       attending: existingRsvp.attending ? 'yes' : 'no',
       dietaryRestrictions: existingRsvp.dietary_restrictions || '',
@@ -183,6 +229,9 @@ const RsvpForm = () => {
       })) || [],
       hasPlusOne: (existingRsvp.additional_guests?.length || 0) > 0
     };
+    
+    console.log('Using existing RSVP default values:', defaultValues);
+    return defaultValues;
   };
 
   return (

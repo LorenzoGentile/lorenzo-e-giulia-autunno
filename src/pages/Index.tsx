@@ -43,7 +43,7 @@ const Index = () => {
         backgroundImage: `url('/top_background.svg')`
       }}>
         <div className="container mx-auto px-4 z-10 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-autumn-dark-brown font-cinzel-decorative mb-6">
+          <h1 className="text-5xl md:text-7xl text-autumn-dark-brown font-cinzel-decorative mb-6">
             Lorenzo & Giulia
           </h1>
           <p className="text-2xl md:text-3xl text-autumn-dark-brown font-light mb-12 font-cinzel">

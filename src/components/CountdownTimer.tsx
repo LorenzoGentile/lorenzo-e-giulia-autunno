@@ -58,7 +58,7 @@ const CountdownTimer = () => {
               key={unit.label} 
               className="flex flex-col items-center autumn-card min-w-[100px]"
             >
-              <span className="text-4xl md:text-5xl font-bold text-autumn-terracotta font-cinzel">
+              <span className="text-4xl md:text-5xl text-autumn-terracotta font-cinzel">
                 {unit.value < 10 ? `0${unit.value}` : unit.value}
               </span>
               <span className="text-sm text-autumn-burgundy font-medium font-cinzel">

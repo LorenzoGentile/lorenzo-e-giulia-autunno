@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Heart } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-autumn-burgundy text-white py-8">
+  return <footer className="text-white py-8 bg-[#faf4f3]">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center justify-center">
           <div className="text-center mb-6">
@@ -37,8 +34,6 @@ const Footer = () => {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;

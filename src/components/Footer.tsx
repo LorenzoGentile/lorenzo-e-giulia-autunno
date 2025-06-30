@@ -5,7 +5,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center justify-center">
           <div className="text-center mb-6">
-            <h2 className="font-playfair text-3xl mb-2">Lorenzo & Giulia</h2>
+            <h2 className="font-playfair text-3xl mb-2 text-[#af7d58]/[0.99]">Lorenzo & Giulia</h2>
             <div className="flex items-center justify-center">
               <span className="inline-block h-px w-8 bg-autumn-amber mx-3"></span>
               <Heart className="w-5 h-5 text-autumn-amber" fill="currentColor" />

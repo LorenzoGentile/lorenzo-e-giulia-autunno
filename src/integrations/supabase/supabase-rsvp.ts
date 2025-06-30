@@ -8,18 +8,40 @@ export interface GuestInfo {
 
 export const fetchGuestInfo = async (email: string): Promise<GuestInfo | null> => {
   try {
-    const { data, error } = await supabase
+    console.log('fetchGuestInfo called with email:', email);
+    
+    // Use exact match first, then try case-insensitive
+    let { data, error } = await supabase
       .from('invited_guests')
       .select('id, name')
       .eq('email', email.toLowerCase())
-      .single();
+      .limit(1);
       
     if (error) {
-      console.error('Error fetching guest info:', error);
-      return null;
+      console.error('Error with exact match:', error);
+      
+      // Try case-insensitive search as fallback
+      const fallbackResult = await supabase
+        .from('invited_guests')
+        .select('id, name')
+        .ilike('email', email.toLowerCase())
+        .limit(1);
+        
+      if (fallbackResult.error) {
+        console.error('Error with case-insensitive search:', fallbackResult.error);
+        return null;
+      }
+      
+      data = fallbackResult.data;
     }
     
-    return data;
+    console.log('fetchGuestInfo database response:', data);
+    
+    if (data && data.length > 0) {
+      return data[0];
+    }
+    
+    return null;
   } catch (error) {
     console.error('Error fetching guest info:', error);
     return null;
@@ -34,6 +56,8 @@ export const submitRsvpResponse = async (
   additionalGuests: Array<{ name: string; dietaryRestrictions?: string }>
 ) => {
   try {
+    console.log('Submitting RSVP for guest ID:', guestId);
+    
     // Insert RSVP response
     const { data: rsvpData, error: rsvpError } = await supabase
       .from('rsvp_responses')
@@ -46,7 +70,12 @@ export const submitRsvpResponse = async (
       .select('id')
       .single();
       
-    if (rsvpError) throw rsvpError;
+    if (rsvpError) {
+      console.error('Error inserting RSVP response:', rsvpError);
+      throw rsvpError;
+    }
+    
+    console.log('RSVP response inserted:', rsvpData);
     
     // Insert additional guests if attending and there are any
     if (attending && additionalGuests.length > 0 && rsvpData?.id) {
@@ -59,11 +88,18 @@ export const submitRsvpResponse = async (
         }));
         
       if (additionalGuestsToInsert.length > 0) {
+        console.log('Inserting additional guests:', additionalGuestsToInsert);
+        
         const { error: additionalGuestsError } = await supabase
           .from('additional_guests')
           .insert(additionalGuestsToInsert);
           
-        if (additionalGuestsError) throw additionalGuestsError;
+        if (additionalGuestsError) {
+          console.error('Error inserting additional guests:', additionalGuestsError);
+          throw additionalGuestsError;
+        }
+        
+        console.log('Additional guests inserted successfully');
       }
     }
     

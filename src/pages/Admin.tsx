@@ -8,7 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Users, Calendar, MessageSquare, Shield } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Loader2, Users, Calendar, MessageSquare, Shield, Image, UserPlus, Mail } from 'lucide-react';
 
 interface AdminStats {
   totalGuests: number;
@@ -37,6 +38,9 @@ const Admin = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [guests, setGuests] = useState<GuestData[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [newGuestEmail, setNewGuestEmail] = useState('');
+  const [newGuestName, setNewGuestName] = useState('');
+  const [isAddingGuest, setIsAddingGuest] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
@@ -50,6 +54,8 @@ const Admin = () => {
     }
 
     try {
+      console.log('Checking admin access for user:', user.id);
+      
       // Check if user has admin role
       const { data, error } = await supabase
         .from('user_roles')
@@ -63,6 +69,7 @@ const Admin = () => {
         setIsAdmin(false);
       } else {
         const hasAdminRole = !!data;
+        console.log('Has admin role:', hasAdminRole);
         setIsAdmin(hasAdminRole);
         
         if (hasAdminRole) {
@@ -79,6 +86,8 @@ const Admin = () => {
 
   const loadAdminData = async () => {
     try {
+      console.log('Loading admin data...');
+      
       // Load statistics
       const [guestsResult, rsvpsResult, photosResult] = await Promise.all([
         supabase.from('invited_guests').select('*'),
@@ -86,15 +95,26 @@ const Admin = () => {
         supabase.from('wedding_photos').select('id')
       ]);
 
-      if (guestsResult.error) throw guestsResult.error;
-      if (rsvpsResult.error) throw rsvpsResult.error;
-      if (photosResult.error) throw photosResult.error;
+      if (guestsResult.error) {
+        console.error('Error loading guests:', guestsResult.error);
+        throw guestsResult.error;
+      }
+      if (rsvpsResult.error) {
+        console.error('Error loading RSVPs:', rsvpsResult.error);
+        throw rsvpsResult.error;
+      }
+      if (photosResult.error) {
+        console.error('Error loading photos:', photosResult.error);
+        throw photosResult.error;
+      }
 
       const totalGuests = guestsResult.data?.length || 0;
       const totalRsvps = rsvpsResult.data?.length || 0;
       const attendingGuests = rsvpsResult.data?.filter(r => r.attending).length || 0;
       const notAttendingGuests = rsvpsResult.data?.filter(r => !r.attending).length || 0;
       const totalPhotos = photosResult.data?.length || 0;
+
+      console.log('Admin stats:', { totalGuests, totalRsvps, attendingGuests, notAttendingGuests, totalPhotos });
 
       setStats({
         totalGuests,
@@ -119,6 +139,7 @@ const Admin = () => {
       }) || [];
 
       setGuests(guestData);
+      console.log('Loaded guest data:', guestData.length, 'guests');
     } catch (error) {
       console.error('Error loading admin data:', error);
       toast({
@@ -135,6 +156,48 @@ const Admin = () => {
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const addNewGuest = async () => {
+    if (!newGuestEmail || !newGuestName) {
+      toast({
+        title: "Missing information",
+        description: "Please provide both name and email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAddingGuest(true);
+    try {
+      const { error } = await supabase
+        .from('invited_guests')
+        .insert({
+          name: newGuestName,
+          email: newGuestEmail.toLowerCase(),
+          invite_code: Math.random().toString(36).substring(2, 15)
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Guest added",
+        description: `${newGuestName} has been added to the guest list`,
+      });
+
+      setNewGuestName('');
+      setNewGuestEmail('');
+      await loadAdminData(); // Refresh the data
+    } catch (error: any) {
+      console.error('Error adding guest:', error);
+      toast({
+        title: "Error adding guest",
+        description: error.message || "Failed to add guest",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingGuest(false);
     }
   };
 
@@ -249,7 +312,7 @@ const Admin = () => {
 
           <TabsContent value="overview" className="space-y-6">
             {stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Guests</CardTitle>
@@ -292,17 +355,40 @@ const Admin = () => {
                     <div className="text-2xl font-bold text-red-600">{stats.notAttendingGuests}</div>
                   </CardContent>
                 </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Photos</CardTitle>
+                    <Image className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{stats.totalPhotos}</div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 
             <Card>
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle>Response Rate</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
-                  Recent RSVPs and photo uploads will appear here
-                </p>
+                {stats && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Response Rate</span>
+                      <span>{stats.totalGuests > 0 ? Math.round((stats.totalRsvps / stats.totalGuests) * 100) : 0}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-autumn-amber h-2 rounded-full transition-all duration-300" 
+                        style={{ 
+                          width: stats.totalGuests > 0 ? `${(stats.totalRsvps / stats.totalGuests) * 100}%` : '0%' 
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -310,26 +396,70 @@ const Admin = () => {
           <TabsContent value="guests" className="space-y-6">
             <Card>
               <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <UserPlus className="h-5 w-5" />
+                  Add New Guest
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="text-sm font-medium">Name</label>
+                    <Input
+                      value={newGuestName}
+                      onChange={(e) => setNewGuestName(e.target.value)}
+                      placeholder="Guest name"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-sm font-medium">Email</label>
+                    <Input
+                      type="email"
+                      value={newGuestEmail}
+                      onChange={(e) => setNewGuestEmail(e.target.value)}
+                      placeholder="guest@example.com"
+                    />
+                  </div>
+                  <Button 
+                    onClick={addNewGuest}
+                    disabled={isAddingGuest}
+                    className="autumn-button"
+                  >
+                    {isAddingGuest ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Mail className="h-4 w-4 mr-2" />
+                        Add Guest
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>Guest List & RSVP Status</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border border-gray-300">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="border border-gray-300 px-4 py-2 text-left">Name</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">RSVP Status</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Dietary Restrictions</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Message</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>RSVP Status</TableHead>
+                        <TableHead>Dietary Restrictions</TableHead>
+                        <TableHead>Message</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {guests.map(guest => (
-                        <tr key={guest.id}>
-                          <td className="border border-gray-300 px-4 py-2">{guest.name}</td>
-                          <td className="border border-gray-300 px-4 py-2">{guest.email}</td>
-                          <td className="border border-gray-300 px-4 py-2">
+                        <TableRow key={guest.id}>
+                          <TableCell className="font-medium">{guest.name}</TableCell>
+                          <TableCell>{guest.email}</TableCell>
+                          <TableCell>
                             {guest.attending === undefined ? (
                               <span className="text-gray-500">No response</span>
                             ) : guest.attending ? (
@@ -337,17 +467,17 @@ const Admin = () => {
                             ) : (
                               <span className="text-red-600 font-medium">Not attending</span>
                             )}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          </TableCell>
+                          <TableCell>
                             {guest.dietary_restrictions || '-'}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          </TableCell>
+                          <TableCell>
                             {guest.message || '-'}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>

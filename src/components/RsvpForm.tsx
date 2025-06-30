@@ -1,29 +1,34 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
 import EmailVerificationForm from './rsvp/EmailVerificationForm';
 import RsvpFormFields from './rsvp/RsvpFormFields';
 import { fetchGuestInfo, GuestInfo, submitRsvpResponse } from '@/integrations/supabase/supabase-rsvp';
 import { RsvpFormValues } from '@/types/rsvp';
 import { supabase } from '@/integrations/supabase/client';
+
 interface AdditionalGuest {
   id: string;
   rsvp_id: string;
   name: string;
   dietary_restrictions?: string;
 }
+
 interface ExistingRsvp {
   id: string;
   attending: boolean;
   created_at: string;
   dietary_restrictions?: string;
   message?: string;
-  additional_guests?: AdditionalGuest[]; // <-- add this!
+  additional_guests?: AdditionalGuest[];
 }
 
 const RsvpForm = () => {
   const { user, isInvitedGuest } = useAuth();
-  const [step, setStep] = useState<'email' | 'rsvp'>('email');
+  const [step, setStep] = useState<'email' | 'auth-required' | 'rsvp'>('email');
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [guestInfo, setGuestInfo] = useState<GuestInfo | null>(null);
   const [existingRsvp, setExistingRsvp] = useState<ExistingRsvp | null>(null);
@@ -33,10 +38,20 @@ const RsvpForm = () => {
   useEffect(() => {
     const checkUserAndInitialize = async () => {
       if (user?.email && isInvitedGuest) {
+        console.log('User is logged in and invited, checking guest info for:', user.email);
         const info = await fetchGuestInfo(user.email);
         if (info) {
+          console.log('Guest info found for logged in user:', info);
           setGuestInfo(info);
           setVerifiedEmail(user.email);
+          
+          // Check for existing RSVP for this logged-in user
+          const existingRsvpData = await fetchExistingRsvpDetails(info.id);
+          if (existingRsvpData) {
+            console.log('Found existing RSVP for logged-in user:', existingRsvpData);
+            setExistingRsvp(existingRsvpData);
+          }
+          
           setStep('rsvp');
         }
       }
@@ -45,16 +60,31 @@ const RsvpForm = () => {
     checkUserAndInitialize();
   }, [user, isInvitedGuest]);
 
-  const fetchExistingRsvpDetails = async (rsvpId: string) => {
+  const fetchExistingRsvpDetails = async (guestId: string) => {
     try {
+      console.log('Fetching existing RSVP details for guest ID:', guestId);
+      
       const { data, error } = await supabase
         .from('rsvp_responses')
         .select('*, additional_guests(*)')
-        .eq('id', rsvpId)
-        .single();
+        .eq('guest_id', guestId)
+        .order('created_at', { ascending: false })
+        .limit(1);
       
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching existing RSVP details:', error);
+        throw error;
+      }
+      
+      console.log('Raw RSVP query result:', data);
+      
+      if (data && data.length > 0) {
+        console.log('Found existing RSVP details:', data[0]);
+        return data[0];
+      }
+      
+      console.log('No existing RSVP details found');
+      return null;
     } catch (error) {
       console.error('Error fetching existing RSVP details:', error);
       return null;
@@ -62,18 +92,48 @@ const RsvpForm = () => {
   };
 
   const handleEmailVerified = async (email: string, info: GuestInfo, existingRsvpData?: { id: string; attending: boolean; created_at: string }) => {
+    console.log('Email verified:', email, 'Guest info:', info, 'Existing RSVP basic data:', existingRsvpData);
+    
     setVerifiedEmail(email);
     setGuestInfo(info);
     
     if (existingRsvpData) {
+      console.log('Fetching full RSVP details for existing RSVP ID:', existingRsvpData.id);
       // Fetch full RSVP details including additional guests
-      const fullRsvpData = await fetchExistingRsvpDetails(existingRsvpData.id);
+      const fullRsvpData = await fetchExistingRsvpDetails(info.id);
       if (fullRsvpData) {
+        console.log('Setting full existing RSVP data:', fullRsvpData);
         setExistingRsvp(fullRsvpData);
+      } else {
+        console.log('Could not fetch full RSVP details, but we know one exists');
+        // If we can't fetch full details but we know an RSVP exists, 
+        // create a minimal existing RSVP object
+        setExistingRsvp({
+          id: existingRsvpData.id,
+          attending: existingRsvpData.attending,
+          created_at: existingRsvpData.created_at,
+          additional_guests: []
+        });
       }
+    } else {
+      console.log('No existing RSVP data provided');
+      setExistingRsvp(null);
     }
     
-    setStep('rsvp');
+    // Check if user is logged in before proceeding to RSVP form
+    if (!user) {
+      console.log('User not logged in, showing auth required step');
+      setStep('auth-required');
+    } else if (user.email?.toLowerCase() !== email.toLowerCase()) {
+      console.log('User logged in with different email, showing auth required step');
+      toast.error('Email non corrispondente', {
+        description: 'Sei loggato con un\'email diversa da quella verificata. Per favore accedi con l\'email corretta.',
+      });
+      setStep('auth-required');
+    } else {
+      console.log('User logged in with correct email, proceeding to RSVP form');
+      setStep('rsvp');
+    }
   };
   
   const handleRsvpSubmitted = () => {
@@ -84,55 +144,40 @@ const RsvpForm = () => {
       setGuestInfo(null);
       setExistingRsvp(null);
     } else {
-      toast.success('Thank you for your RSVP!');
+      toast.success('Grazie per il tuo RSVP!');
     }
   };
 
-  const updateExistingRsvp = async (rsvpId: string, formData: RsvpFormValues) => {
+  const deleteExistingRsvp = async (rsvpId: string) => {
     try {
-      // Update the main RSVP response
-      const { error: rsvpError } = await supabase
-        .from('rsvp_responses')
-        .update({
-          attending: formData.attending === 'yes',
-          dietary_restrictions: formData.dietaryRestrictions,
-          message: formData.songRequest,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', rsvpId);
+      console.log('Deleting existing RSVP and additional guests for RSVP ID:', rsvpId);
       
-      if (rsvpError) throw rsvpError;
-      
-      // Delete existing additional guests
-      const { error: deleteError } = await supabase
+      // First delete additional guests
+      const { error: deleteGuestsError } = await supabase
         .from('additional_guests')
         .delete()
         .eq('rsvp_id', rsvpId);
       
-      if (deleteError) throw deleteError;
-      
-      // Insert new additional guests if attending and there are any
-      if (formData.attending === 'yes' && formData.additionalGuests.length > 0) {
-        const additionalGuestsToInsert = formData.additionalGuests
-          .filter(guest => guest.name.trim() !== '')
-          .map(guest => ({
-            rsvp_id: rsvpId,
-            name: guest.name,
-            dietary_restrictions: guest.dietaryRestrictions
-          }));
-          
-        if (additionalGuestsToInsert.length > 0) {
-          const { error: additionalGuestsError } = await supabase
-            .from('additional_guests')
-            .insert(additionalGuestsToInsert);
-            
-          if (additionalGuestsError) throw additionalGuestsError;
-        }
+      if (deleteGuestsError) {
+        console.error('Error deleting additional guests:', deleteGuestsError);
+        throw deleteGuestsError;
       }
       
+      // Then delete the main RSVP response
+      const { error: deleteRsvpError } = await supabase
+        .from('rsvp_responses')
+        .delete()
+        .eq('id', rsvpId);
+      
+      if (deleteRsvpError) {
+        console.error('Error deleting RSVP response:', deleteRsvpError);
+        throw deleteRsvpError;
+      }
+      
+      console.log('Successfully deleted existing RSVP and additional guests');
       return true;
     } catch (error) {
-      console.error('Error updating RSVP:', error);
+      console.error('Error deleting existing RSVP:', error);
       throw error;
     }
   };
@@ -140,22 +185,47 @@ const RsvpForm = () => {
   const handleSubmitRsvp = async (formData: RsvpFormValues) => {
     if (!guestInfo) return;
     
+    // Double-check authentication before submission
+    if (!user) {
+      toast.error('Accesso richiesto', {
+        description: 'Devi essere loggato per inviare l\'RSVP.',
+      });
+      setStep('auth-required');
+      return;
+    }
+    
+    if (user.email?.toLowerCase() !== verifiedEmail.toLowerCase()) {
+      toast.error('Email non corrispondente', {
+        description: 'L\'email con cui sei loggato non corrisponde a quella verificata.',
+      });
+      setStep('auth-required');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
+      console.log('Submitting RSVP. Existing RSVP:', existingRsvp);
+      
       if (existingRsvp) {
-        // Update existing RSVP
-        await updateExistingRsvp(existingRsvp.id, formData);
+        console.log('Deleting existing RSVP before creating new one');
+        // Delete existing RSVP and additional guests before creating new ones
+        await deleteExistingRsvp(existingRsvp.id);
+        toast.success('Risposta precedente rimossa. Creazione nuova risposta...');
+      }
+      
+      // Always create new RSVP (whether replacing existing or creating first time)
+      await submitRsvpResponse(
+        guestInfo.id,
+        formData.attending === 'yes',
+        formData.dietaryRestrictions,
+        formData.songRequest,
+        formData.additionalGuests
+      );
+      
+      if (existingRsvp) {
         toast.success('RSVP aggiornato con successo!');
       } else {
-        // Create new RSVP
-        await submitRsvpResponse(
-          guestInfo.id,
-          formData.attending === 'yes',
-          formData.dietaryRestrictions,
-          formData.songRequest,
-          formData.additionalGuests
-        );
         toast.success('RSVP inviato con successo!');
       }
       
@@ -176,12 +246,13 @@ const RsvpForm = () => {
     };
     
     if (!existingRsvp) {
+      console.log('No existing RSVP, using base values:', baseValues);
       return baseValues;
     }
     
-    return {
+    const defaultValues: Partial<RsvpFormValues> = {
       ...baseValues,
-      attending: existingRsvp.attending ? 'yes' : 'no',
+      attending: existingRsvp.attending ? ('yes' as const) : ('no' as const),
       dietaryRestrictions: existingRsvp.dietary_restrictions || '',
       songRequest: existingRsvp.message || '',
       additionalGuests: existingRsvp.additional_guests?.map(guest => ({
@@ -190,6 +261,9 @@ const RsvpForm = () => {
       })) || [],
       hasPlusOne: (existingRsvp.additional_guests?.length || 0) > 0
     };
+    
+    console.log('Using existing RSVP default values:', defaultValues);
+    return defaultValues;
   };
 
   return (
@@ -203,6 +277,36 @@ const RsvpForm = () => {
           </p>
           <EmailVerificationForm onEmailVerified={handleEmailVerified} />
         </>
+      ) : step === 'auth-required' ? (
+        <>
+          <div className="max-w-xl mx-auto autumn-card text-center">
+            <h3 className="text-xl font-semibold text-autumn-burgundy mb-4">
+              Accesso Richiesto
+            </h3>
+            <p className="text-gray-700 mb-6">
+              Per inviare il tuo RSVP, devi prima accedere al tuo account con l'email verificata.
+            </p>
+            {verifiedEmail && (
+              <p className="text-sm text-autumn-terracotta mb-6">
+                Email verificata: <strong>{verifiedEmail}</strong>
+              </p>
+            )}
+            <div className="space-y-4">
+              <Link to="/auth">
+                <Button className="autumn-button w-full">
+                  Accedi / Registrati
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => setStep('email')}
+                className="w-full"
+              >
+                Torna alla Verifica Email
+              </Button>
+            </div>
+          </div>
+        </>
       ) : (
         <>
           <p className="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
@@ -211,9 +315,15 @@ const RsvpForm = () => {
                 Email verificata: {verifiedEmail}
               </span>
             )}
+            {user && (
+              <span className="block text-sm text-green-600 mb-2">
+                ✓ Sei loggato come: {user.email}
+              </span>
+            )}
             {existingRsvp && (
               <span className="block text-sm text-autumn-gold mb-2">
-                Stai aggiornando la tua risposta precedente
+                Hai già risposto precedentemente. I campi sono precompilati con le tue risposte precedenti. 
+                Quando invii il form, la risposta precedente verrà sostituita completamente.
               </span>
             )}
             Vi preghiamo di confermare la vostra presenza entro il 15 Agosto 2025. Saremo felici di avervi con noi in questo giorno speciale!

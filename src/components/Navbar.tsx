@@ -8,7 +8,7 @@ import { User } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user, signOut, isLoading } = useAuth();
+  const { user, signOut } = useAuth();
   
   // Handle navbar background change on scroll
   useEffect(() => {
@@ -38,11 +38,9 @@ const Navbar = () => {
   
   const handleLogout = async () => {
     try {
-      console.log('Navbar: Logout button clicked');
       await signOut();
-      console.log('Navbar: Logout completed successfully');
     } catch (error) {
-      console.error('Navbar: Logout error:', error);
+      console.error('Logout error:', error);
     }
   };
 
@@ -79,10 +77,9 @@ const Navbar = () => {
                   variant="outline" 
                   size="sm" 
                   onClick={handleLogout}
-                  disabled={isLoading}
-                  className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white disabled:opacity-50"
+                  className="border-autumn-terracotta text-autumn-terracotta hover:bg-autumn-terracotta hover:text-white"
                 >
-                  {isLoading ? 'Uscendo...' : 'Esci'}
+                  Esci
                 </Button>
               </div>
             ) : (
@@ -135,10 +132,9 @@ const Navbar = () => {
                       </div>
                       <Button 
                         onClick={handleLogout}
-                        disabled={isLoading}
-                        className="w-full autumn-button disabled:opacity-50"
+                        className="w-full autumn-button"
                       >
-                        {isLoading ? 'Uscendo...' : 'Esci'}
+                        Logout
                       </Button>
                     </div>
                   ) : (

@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -44,7 +45,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-montserrat;
+    @apply bg-background text-foreground font-cinzel;
     background-image: 
       url('/assets/bg.svg'),
       linear-gradient(135deg, #FFF 0%, #FAF5F3 100%);
@@ -59,7 +60,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-playfair;
+    @apply font-cinzel-decorative;
   }
 }
 
@@ -165,7 +166,7 @@
 }
 
 .section-title {
-  @apply text-4xl md:text-5xl font-bold text-autumn-burgundy text-center mb-12 font-playfair;
+  @apply text-4xl md:text-5xl font-bold text-autumn-burgundy text-center mb-12 font-cinzel-decorative;
   position: relative;
 }
 
@@ -186,12 +187,12 @@
 }
 
 .section-subtitle {
-  @apply text-2xl md:text-3xl font-semibold text-autumn-terracotta mb-6 font-playfair;
+  @apply text-2xl md:text-3xl font-semibold text-autumn-terracotta mb-6 font-cinzel-decorative;
 }
 
 /* Elegant button styling */
 .autumn-button {
-  @apply font-montserrat inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-autumn-terracotta hover:bg-autumn-burgundy focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-autumn-terracotta transition-colors duration-200;
+  @apply font-cinzel inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-autumn-terracotta hover:bg-autumn-burgundy focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-autumn-terracotta transition-colors duration-200;
 }
 
 .autumn-card {

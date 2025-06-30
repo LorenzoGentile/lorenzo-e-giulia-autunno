@@ -48,7 +48,7 @@ const CountdownTimer = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <h2 className="text-2xl font-playfair text-autumn-burgundy text-center mb-8">
+      <h2 className="text-2xl font-cinzel-decorative text-autumn-burgundy text-center mb-8">
         Ci Sposeremo
       </h2>
       <div className="flex justify-center mb-8">
@@ -58,17 +58,17 @@ const CountdownTimer = () => {
               key={unit.label} 
               className="flex flex-col items-center autumn-card min-w-[100px]"
             >
-              <span className="text-4xl md:text-5xl font-bold text-autumn-terracotta">
+              <span className="text-4xl md:text-5xl font-bold text-autumn-terracotta font-cinzel">
                 {unit.value < 10 ? `0${unit.value}` : unit.value}
               </span>
-              <span className="text-sm text-autumn-burgundy font-medium">
+              <span className="text-sm text-autumn-burgundy font-medium font-cinzel">
                 {unit.label}
               </span>
             </div>
           ))}
         </div>
       </div>
-      <p className="text-center text-xl font-playfair text-autumn-burgundy">
+      <p className="text-center text-xl font-cinzel-decorative text-autumn-burgundy">
         19 Ottobre 2025 • Villa del Cardinale • Rocca di Papa
       </p>
     </div>

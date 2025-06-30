@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -42,10 +43,10 @@ const Index = () => {
         backgroundImage: `url('/top_background.svg')`
       }}>
         <div className="container mx-auto px-4 z-10 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-autumn-dark-brown font-playfair mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-autumn-dark-brown font-cinzel-decorative mb-6">
             Lorenzo & Giulia
           </h1>
-          <p className="text-2xl md:text-3xl text-autumn-dark-brown font-light mb-12 font-montserrat">
+          <p className="text-2xl md:text-3xl text-autumn-dark-brown font-light mb-12 font-cinzel">
             Vi invitiamo al nostro matrimonio
           </p>
           <div className="bg-white bg-opacity-90 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
@@ -57,10 +58,10 @@ const Index = () => {
             <section className="py-20 bg-autumn-burgundy text-white">
         <div className="container mx-auto px-4">
           <blockquote className="max-w-4xl mx-auto text-center">
-            <p className="text-2xl md:text-3xl italic font-playfair mb-6">
+            <p className="text-2xl md:text-3xl italic font-cinzel-decorative mb-6">
               "L'amore non consiste nel guardarsi l'un l'altro, ma nel guardare insieme nella stessa direzione."
             </p>
-            <footer className="text-autumn-amber">— Antoine de Saint-Exupéry</footer>
+            <footer className="text-autumn-amber font-cinzel">— Antoine de Saint-Exupéry</footer>
           </blockquote>
         </div>
       </section>
@@ -71,10 +72,10 @@ const Index = () => {
       <section className="py-20 bg-autumn-burgundy text-white">
         <div className="container mx-auto px-4">
           <blockquote className="max-w-4xl mx-auto text-center">
-            <p className="text-2xl md:text-3xl italic font-playfair mb-6">
+            <p className="text-2xl md:text-3xl italic font-cinzel-decorative mb-6">
               "L'amore non consiste nel guardarsi l'un l'altro, ma nel guardare insieme nella stessa direzione."
             </p>
-            <footer className="text-autumn-amber">— Antoine de Saint-Exupéry</footer>
+            <footer className="text-autumn-amber font-cinzel">— Antoine de Saint-Exupéry</footer>
           </blockquote>
         </div>
       </section>

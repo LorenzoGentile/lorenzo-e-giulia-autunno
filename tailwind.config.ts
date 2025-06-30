@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -112,8 +113,8 @@ export default {
 				'fade-in': 'fade-in 1s ease-out'
 			},
 			fontFamily: {
-				'playfair': ['Playfair Display', 'serif'],
-				'montserrat': ['Montserrat', 'sans-serif']
+				'cinzel-decorative': ['Cinzel Decorative', 'serif'],
+				'cinzel': ['Cinzel', 'serif']
 			},
 			backgroundImage: {
 				'autumn-gradient': 'linear-gradient(to right, #C77E54, #FBCA89)'

@@ -55,7 +55,7 @@ const Navbar = () => {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
-          <Link to="/" className="font-playfair text-xl font-bold text-autumn-burgundy">
+          <Link to="/" className="font-cinzel-decorative text-xl font-bold text-autumn-burgundy">
             L&G
           </Link>
 
@@ -65,7 +65,7 @@ const Navbar = () => {
               <a 
                 key={link.name}
                 href={link.href} 
-                className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+                className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
               >
                 {link.name}
               </a>
@@ -122,7 +122,7 @@ const Navbar = () => {
                   <a 
                     key={link.name}
                     href={link.href} 
-                    className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-montserrat"
+                    className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
                   >
                     {link.name}
                   </a>

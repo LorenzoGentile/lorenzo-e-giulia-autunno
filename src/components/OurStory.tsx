@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -64,7 +65,7 @@ const OurStory = () => {
         {timelineEvents.map((event, index) => (
           <div 
             key={index} 
-            className={`mb-12 ${isMobile ? 'flex-col' : `flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`} relative timeline-item-animate flex`}
+            className={`mb-8 ${isMobile ? 'flex-col' : `flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`} relative timeline-item-animate flex`}
             style={{transitionDelay: `${index * 0.2}s`}}
           >
             <div className={`${isMobile ? 'w-full' : 'w-1/2'} ${!isMobile && (index % 2 === 0 ? 'pr-8 text-right' : 'pl-8')}`}>

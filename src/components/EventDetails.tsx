@@ -1,9 +1,7 @@
 import React from 'react';
 import { Calendar, MapPin, Clock } from 'lucide-react';
-
 const EventDetails = () => {
-  return (
-    <div className="section-container bg-autumn-cream bg-opacity-20" id="dettagli">
+  return <div id="dettagli" className="section-container bg-opacity-20 bg-transparent">
       <h2 className="section-title">Dettagli dell'Evento</h2>
       
       <div className="text-center mb-12">
@@ -45,16 +43,9 @@ const EventDetails = () => {
       <div className="mt-12 text-center">
         <h3 className="section-subtitle">Come Arrivare</h3>
         <div className="aspect-w-16 aspect-h-9 mt-6">
-          <iframe 
-            title="Wedding Location Map"
-            className="w-full h-64 rounded-lg shadow-md"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2976.850274525637!2d12.689743476273291!3d41.745322273716674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1325842cc3471461%3A0x65f6ee5e5210a1f5!2sVilla%20del%20Cardinale!5e0!3m2!1sen!2sit!4v1749109190719!5m2!1sen!2sit"
-            loading="lazy"
-          ></iframe>
+          <iframe title="Wedding Location Map" className="w-full h-64 rounded-lg shadow-md" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2976.850274525637!2d12.689743476273291!3d41.745322273716674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1325842cc3471461%3A0x65f6ee5e5210a1f5!2sVilla%20del%20Cardinale!5e0!3m2!1sen!2sit!4v1749109190719!5m2!1sen!2sit" loading="lazy"></iframe>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default EventDetails;

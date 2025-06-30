@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Calendar, MapPin, Clock } from 'lucide-react';
 
@@ -7,20 +6,20 @@ const EventDetails = () => {
     <div className="section-container bg-autumn-cream bg-opacity-20" id="dettagli">
       <h2 className="section-title">Dettagli dell'Evento</h2>
       
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center mb-3">
+      <div className="text-center mb-12">
+        <div className="inline-flex items-center mb-4">
           <Calendar className="w-6 h-6 text-autumn-terracotta mr-2" />
           <span className="text-2xl font-playfair text-autumn-burgundy">19 Ottobre 2025</span>
         </div>
         <p className="text-lg text-gray-700">Vi invitiamo a celebrare il nostro matrimonio</p>
       </div>
       
-      <div className="autumn-card max-w-3xl mx-auto text-center p-6">
-        <MapPin className="w-10 h-10 text-autumn-terracotta mb-3 mx-auto" />
+      <div className="autumn-card max-w-3xl mx-auto text-center p-8">
+        <MapPin className="w-10 h-10 text-autumn-terracotta mb-4 mx-auto" />
         <h3 className="text-3xl font-playfair text-autumn-burgundy mb-2">Villa del Cardinale</h3>
-        <p className="text-lg text-gray-600 mb-4">Via dei Laghi 7, Km 11, 00040 Rocca di Papa RM</p>
+        <p className="text-lg text-gray-600 mb-6">Via dei Laghi 7, Km 11, 00040 Rocca di Papa RM</p>
 
-        <div className="flex justify-center divide-x-2 divide-autumn-gold my-4">
+        <div className="flex justify-center divide-x-2 divide-autumn-gold my-6">
           <div className="px-8 text-center">
             <h4 className="text-2xl font-playfair text-autumn-burgundy mb-2">La Cerimonia</h4>
             <div className="flex items-center justify-center">
@@ -37,15 +36,15 @@ const EventDetails = () => {
           </div>
         </div>
         
-        <p className="text-gray-700 mt-4 text-lg">
+        <p className="text-gray-700 mt-6 text-lg">
           La cerimonia e il ricevimento si terranno entrambi nella splendida cornice di Villa del Cardinale, 
           un luogo incantevole che abbiamo scelto per condividere con voi questo giorno speciale.
         </p>
       </div>
 
-      <div className="mt-8 text-center">
+      <div className="mt-12 text-center">
         <h3 className="section-subtitle">Come Arrivare</h3>
-        <div className="aspect-w-16 aspect-h-9 mt-4">
+        <div className="aspect-w-16 aspect-h-9 mt-6">
           <iframe 
             title="Wedding Location Map"
             className="w-full h-64 rounded-lg shadow-md"

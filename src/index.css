@@ -166,7 +166,7 @@
 }
 
 .section-title {
-  @apply text-4xl md:text-5xl font-bold text-autumn-burgundy text-center mb-12 font-cinzel-decorative;
+  @apply text-4xl md:text-5xl text-autumn-burgundy text-center mb-12 font-cinzel-decorative;
   position: relative;
 }
 
@@ -187,7 +187,7 @@
 }
 
 .section-subtitle {
-  @apply text-2xl md:text-3xl font-semibold text-autumn-terracotta mb-6 font-cinzel-decorative;
+  @apply text-2xl md:text-3xl text-autumn-terracotta mb-6 font-cinzel-decorative;
 }
 
 /* Elegant button styling */

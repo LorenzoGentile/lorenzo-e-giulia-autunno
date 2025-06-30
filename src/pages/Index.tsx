@@ -39,7 +39,7 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="min-h-screen flex items-start justify-center bg-cover bg-center relative pt-20" style={{
+      <section className="min-h-screen flex items-center justify-center bg-cover bg-center relative" style={{
         backgroundImage: `url('/top_background.svg')`
       }}>
         <div className="container mx-auto px-4 z-10 text-center">

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LoginFormProps {
@@ -16,41 +15,26 @@ interface LoginFormProps {
 
 const LoginForm = ({ email, setEmail, password, setPassword, onSuccess }: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { checkInvitedStatus } = useAuth();
+  const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      toast.error('Campi richiesti', {
+        description: 'Inserisci email e password'
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
-      // First check if the email is invited
-      const isInvited = await checkInvitedStatus(email);
-      
-      if (!isInvited) {
-        toast.error('Login failed', {
-          description: 'This email is not on our guest list. Please contact the hosts if this is an error.'
-        });
-        setIsLoading(false);
-        return;
-      }
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-      
-      toast.success('Login successful', {
-        description: 'Welcome back!'
-      });
-      
+      await signIn(email, password);
       onSuccess();
     } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error('Login failed', {
-        description: error.message || 'Please check your credentials and try again'
-      });
+      // Error handling is done in the signIn method
+      console.error('Login form error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -58,8 +42,8 @@ const LoginForm = ({ email, setEmail, password, setPassword, onSuccess }: LoginF
 
   const handleResetPassword = async () => {
     if (!email) {
-      toast.error('Email required', {
-        description: 'Please enter your email address'
+      toast.error('Email richiesta', {
+        description: 'Inserisci la tua email per recuperare la password'
       });
       return;
     }
@@ -67,19 +51,33 @@ const LoginForm = ({ email, setEmail, password, setPassword, onSuccess }: LoginF
     setIsLoading(true);
     
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth`,
       });
       
-      if (error) throw error;
-      
-      toast.success('Password reset email sent', {
-        description: 'Check your inbox for instructions'
-      });
+      if (error) {
+        console.error('Reset password error:', error);
+        
+        if (error.message?.includes('Failed to fetch')) {
+          toast.error('Errore di connessione', {
+            description: 'Impossibile inviare l\'email di reset. Controlla la connessione.'
+          });
+        } else {
+          toast.error('Errore invio email', {
+            description: error.message || 'Riprova più tardi'
+          });
+        }
+      } else {
+        toast.success('Email inviata', {
+          description: 'Controlla la tua casella di posta per le istruzioni'
+        });
+      }
     } catch (error: any) {
       console.error('Reset password error:', error);
-      toast.error('Failed to send reset email', {
-        description: error.message || 'Please try again later'
+      toast.error('Errore invio email', {
+        description: 'Riprova più tardi'
       });
     } finally {
       setIsLoading(false);
@@ -99,6 +97,7 @@ const LoginForm = ({ email, setEmail, password, setPassword, onSuccess }: LoginF
           onChange={(e) => setEmail(e.target.value)}
           required
           placeholder="La tua email"
+          disabled={isLoading}
         />
       </div>
       
@@ -113,6 +112,7 @@ const LoginForm = ({ email, setEmail, password, setPassword, onSuccess }: LoginF
           onChange={(e) => setPassword(e.target.value)}
           required
           placeholder="La tua password"
+          disabled={isLoading}
         />
       </div>
       

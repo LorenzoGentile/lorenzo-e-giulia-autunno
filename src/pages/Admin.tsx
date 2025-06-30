@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -152,10 +151,13 @@ const Admin = () => {
 
   const handleLogout = async () => {
     try {
+      console.log('Admin: Initiating logout...');
       await signOut();
       navigate('/');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Admin logout error:', error);
+      // Navigate anyway since local state should be cleared
+      navigate('/');
     }
   };
 

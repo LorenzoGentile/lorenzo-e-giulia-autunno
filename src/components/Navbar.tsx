@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { User } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   
   // Handle navbar background change on scroll
   useEffect(() => {
@@ -38,9 +39,15 @@ const Navbar = () => {
   
   const handleLogout = async () => {
     try {
+      console.log('Navbar: Initiating logout...');
       await signOut();
+      
+      // Navigate to home page after logout
+      navigate('/');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Navbar logout error:', error);
+      // Even if there's an error, navigate to home
+      navigate('/');
     }
   };
 
@@ -134,7 +141,7 @@ const Navbar = () => {
                         onClick={handleLogout}
                         className="w-full autumn-button"
                       >
-                        Logout
+                        Esci
                       </Button>
                     </div>
                   ) : (

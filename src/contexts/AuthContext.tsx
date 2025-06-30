@@ -25,17 +25,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const setupAuth = async () => {
       try {
+        console.log('Setting up auth...');
+        
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          (event, session) => {
+          async (event, session) => {
             console.log('Auth state changed:', event, session?.user?.email);
+            
+            // Update session and user state
             setSession(session);
             setUser(session?.user ?? null);
             
-            // If session exists, check if user is invited
-            if (session?.user) {
-              setTimeout(() => {
-                checkInvitedStatus(session.user.email || '');
+            // Handle invited status check
+            if (session?.user?.email) {
+              // Use setTimeout to avoid blocking the auth state change
+              setTimeout(async () => {
+                try {
+                  const isInvited = await checkInvitedStatus(session.user.email!);
+                  setIsInvitedGuest(isInvited);
+                } catch (error) {
+                  console.error('Error checking invited status in auth state change:', error);
+                  setIsInvitedGuest(false);
+                }
               }, 0);
             } else {
               setIsInvitedGuest(false);
@@ -44,20 +55,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
         
         // Check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('Initial session check:', session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Check if user is invited
-        if (session?.user?.email) {
-          const isInvited = await checkInvitedStatus(session.user.email);
-          setIsInvitedGuest(isInvited);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else {
+          console.log('Initial session check:', session?.user?.email);
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          // Check if user is invited for initial session
+          if (session?.user?.email) {
+            try {
+              const isInvited = await checkInvitedStatus(session.user.email);
+              setIsInvitedGuest(isInvited);
+            } catch (error) {
+              console.error('Error checking initial invited status:', error);
+              setIsInvitedGuest(false);
+            }
+          }
         }
         
         setIsLoading(false);
         
-        return () => subscription.unsubscribe();
+        return () => {
+          console.log('Cleaning up auth subscription');
+          subscription.unsubscribe();
+        };
       } catch (error) {
         console.error('Error setting up auth:', error);
         setIsLoading(false);
@@ -69,35 +92,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Attempting sign in for:', email);
+      
       // First check if the email is in the invited_guests table
       const isInvited = await checkInvitedStatus(email);
       
       if (!isInvited) {
-        toast.error('Login failed', {
-          description: 'This email is not on our guest list. Please contact the hosts if this is an error.'
+        toast.error('Accesso negato', {
+          description: 'Questa email non è nella nostra lista invitati. Contatta gli sposi se pensi sia un errore.'
         });
-        return;
+        throw new Error('Email not invited');
       }
       
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-    } catch (error: any) {
-      toast.error('Login failed', {
-        description: error.message || 'Unable to log in'
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
       });
+      
+      if (error) {
+        console.error('Sign in error:', error);
+        throw error;
+      }
+      
+      console.log('Sign in successful:', data.user?.email);
+      
+      toast.success('Accesso effettuato', {
+        description: 'Benvenuto!'
+      });
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      
+      // Handle network errors specifically
+      if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+        toast.error('Errore di connessione', {
+          description: 'Impossibile connettersi al server. Controlla la tua connessione internet.'
+        });
+      } else if (error.message !== 'Email not invited') {
+        toast.error('Errore di accesso', {
+          description: error.message || 'Impossibile effettuare l\'accesso'
+        });
+      }
       throw error;
     }
   };
   
   const signOut = async () => {
     try {
+      console.log('Attempting sign out...');
+      
+      // Clear local state immediately for better UX
+      setSession(null);
+      setUser(null);
+      setIsInvitedGuest(false);
+      
+      // Attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase sign out error:', error);
+        // Don't throw here - we've already cleared local state
+        // Just log the error and show a warning
+        if (!error.message?.includes('Failed to fetch')) {
+          toast.error('Errore durante il logout', { 
+            description: 'Il logout locale è avvenuto con successo, ma si è verificato un errore con il server.'
+          });
+        }
+      } else {
+        console.log('Sign out successful');
+        toast.success('Logout effettuato', {
+          description: 'Arrivederci!'
+        });
+      }
     } catch (error: any) {
-      toast.error('Sign out failed', { 
-        description: error.message || 'Unable to sign out'
-      });
-      throw error;
+      console.error('Sign out error:', error);
+      
+      // Even if there's an error, we've cleared local state
+      // Handle network errors gracefully
+      if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+        toast.success('Logout effettuato', {
+          description: 'Disconnesso localmente (problema di connessione)'
+        });
+      } else {
+        toast.error('Errore durante il logout', { 
+          description: 'Il logout locale è avvenuto comunque'
+        });
+      }
     }
   };
   
@@ -123,23 +202,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
       if (error) {
         console.error('Error checking invited status:', error);
-        // Try with case-insensitive search as fallback
-        const fallbackResult = await supabase
-          .from('invited_guests')
-          .select('id, email')
-          .ilike('email', normalizedEmail)
-          .limit(1);
-          
-        if (fallbackResult.error) {
-          console.error('Fallback search also failed:', fallbackResult.error);
+        
+        // Handle network errors gracefully
+        if (error.message?.includes('Failed to fetch') || error.details?.includes('Failed to fetch')) {
+          console.log('Network error when checking invited status, defaulting to false');
           return false;
         }
         
-        console.log('Fallback invited guests query result:', fallbackResult.data);
-        const isInvited = Boolean(fallbackResult.data && fallbackResult.data.length > 0);
-        console.log('Is invited (fallback):', isInvited);
-        setIsInvitedGuest(isInvited);
-        return isInvited;
+        // Try with case-insensitive search as fallback
+        try {
+          const fallbackResult = await supabase
+            .from('invited_guests')
+            .select('id, email')
+            .ilike('email', normalizedEmail)
+            .limit(1);
+            
+          if (fallbackResult.error) {
+            console.error('Fallback search also failed:', fallbackResult.error);
+            return false;
+          }
+          
+          console.log('Fallback invited guests query result:', fallbackResult.data);
+          const isInvited = Boolean(fallbackResult.data && fallbackResult.data.length > 0);
+          console.log('Is invited (fallback):', isInvited);
+          return isInvited;
+        } catch (fallbackError) {
+          console.error('Fallback search failed completely:', fallbackError);
+          return false;
+        }
       }
       
       console.log('Invited guests query result:', data);
@@ -148,7 +238,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isInvited = Boolean(data && data.length > 0);
       console.log('Is invited:', isInvited);
       
-      setIsInvitedGuest(isInvited);
       return isInvited;
     } catch (error) {
       console.error('Error checking invited status:', error);

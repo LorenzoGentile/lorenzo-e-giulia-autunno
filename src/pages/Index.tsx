@@ -55,13 +55,13 @@ const Index = () => {
         </div>
       </section>
       {/* Quote Section */}
-            <section className="py-20 bg-autumn-burgundy text-white">
+      <section className="py-20 text-white" style={{ backgroundColor: '#B1B88F' }}>
         <div className="container mx-auto px-4">
           <blockquote className="max-w-4xl mx-auto text-center">
-            <p className="text-2xl md:text-3xl italic font-playfair mb-6" style={{ color: '#B1B88F' }}>
+            <p className="text-2xl md:text-3xl italic font-playfair mb-6 text-white">
               "L'amore non consiste nel guardarsi l'un l'altro, ma nel guardare insieme nella stessa direzione."
             </p>
-            <footer className="text-autumn-amber">— Antoine de Saint-Exupéry</footer>
+            <footer className="text-autumn-cream">— Antoine de Saint-Exupéry</footer>
           </blockquote>
         </div>
       </section>
@@ -69,13 +69,13 @@ const Index = () => {
       <OurStory />
       
       {/* Quote Section */}
-      <section className="py-20 bg-autumn-burgundy text-white">
+      <section className="py-20 text-white" style={{ backgroundColor: '#B1B88F' }}>
         <div className="container mx-auto px-4">
           <blockquote className="max-w-4xl mx-auto text-center">
-            <p className="text-2xl md:text-3xl italic font-playfair mb-6" style={{ color: '#B1B88F' }}>
+            <p className="text-2xl md:text-3xl italic font-playfair mb-6 text-white">
               "L'amore non consiste nel guardarsi l'un l'altro, ma nel guardare insieme nella stessa direzione."
             </p>
-            <footer className="text-autumn-amber">— Antoine de Saint-Exupéry</footer>
+            <footer className="text-autumn-cream">— Antoine de Saint-Exupéry</footer>
           </blockquote>
         </div>
       </section>

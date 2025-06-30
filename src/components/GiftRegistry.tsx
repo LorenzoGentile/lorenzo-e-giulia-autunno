@@ -64,21 +64,7 @@ const GiftRegistry = () => {
           </div>
         </div>
         
-        <div className="autumn-card">
-          <h3 className="text-2xl font-playfair text-autumn-burgundy mb-4">
-            Lista Nozze Tradizionale
-          </h3>
-          
-          <p className="text-gray-700 mb-6">
-            Abbiamo anche creato una lista nozze presso "Casa Bella" a Firenze. Potete visitare il negozio e contribuire alla nostra lista nozze numero #LG2025.
-          </p>
-          
-          <div className="border-t border-autumn-amber border-opacity-30 pt-4">
-            <p className="text-gray-600 italic">
-              "Non è tanto il dono, ma il pensiero che conta"
-            </p>
-          </div>
-        </div>
+        
       </div>
     </div>;
 };

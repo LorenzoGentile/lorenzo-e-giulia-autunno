@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -54,17 +53,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-      {/* Quote Section */}
-            <section className="py-20 bg-autumn-burgundy text-white">
-        <div className="container mx-auto px-4">
-          <blockquote className="max-w-4xl mx-auto text-center">
-            <p className="text-2xl md:text-3xl italic font-cinzel-decorative mb-6">
-              "L'amore non consiste nel guardarsi l'un l'altro, ma nel guardare insieme nella stessa direzione."
-            </p>
-            <footer className="text-autumn-amber font-cinzel">— Antoine de Saint-Exupéry</footer>
-          </blockquote>
-        </div>
-      </section>
+      
       {/* Our Story Section */}
       <OurStory />
       

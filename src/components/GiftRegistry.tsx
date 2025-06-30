@@ -1,15 +1,12 @@
-
 import React from 'react';
 import { Gift, Copy } from 'lucide-react';
 import { toast } from 'sonner';
-
 const GiftRegistry = () => {
   const bankDetails = {
     intestatario: "Lorenzo Rossi e Giulia Bianchi",
     iban: "IT12A0123456789000000123456",
     causale: "Regalo Matrimonio Lorenzo e Giulia"
   };
-
   const copyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text).then(() => {
       toast.success(`${fieldName} copiato negli appunti!`);
@@ -17,9 +14,7 @@ const GiftRegistry = () => {
       toast.error('Errore durante la copia. Riprova.');
     });
   };
-
-  return (
-    <div className="section-container bg-autumn-cream bg-opacity-20" id="regalo">
+  return <div id="regalo" className="section-container bg-opacity-20 bg-transparent">
       <h2 className="section-title">Lista Nozze</h2>
       
       <div className="max-w-3xl mx-auto text-center">
@@ -43,11 +38,7 @@ const GiftRegistry = () => {
                 <p className="flex-1">
                   <span className="font-semibold">Intestatario:</span> {bankDetails.intestatario}
                 </p>
-                <button
-                  onClick={() => copyToClipboard(bankDetails.intestatario, 'Intestatario')}
-                  className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200"
-                  aria-label="Copia intestatario"
-                >
+                <button onClick={() => copyToClipboard(bankDetails.intestatario, 'Intestatario')} className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200" aria-label="Copia intestatario">
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
@@ -56,11 +47,7 @@ const GiftRegistry = () => {
                 <p className="flex-1">
                   <span className="font-semibold">IBAN:</span> {bankDetails.iban}
                 </p>
-                <button
-                  onClick={() => copyToClipboard(bankDetails.iban, 'IBAN')}
-                  className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200"
-                  aria-label="Copia IBAN"
-                >
+                <button onClick={() => copyToClipboard(bankDetails.iban, 'IBAN')} className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200" aria-label="Copia IBAN">
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
@@ -69,11 +56,7 @@ const GiftRegistry = () => {
                 <p className="flex-1">
                   <span className="font-semibold">Causale:</span> {bankDetails.causale}
                 </p>
-                <button
-                  onClick={() => copyToClipboard(bankDetails.causale, 'Causale')}
-                  className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200"
-                  aria-label="Copia causale"
-                >
+                <button onClick={() => copyToClipboard(bankDetails.causale, 'Causale')} className="ml-2 p-1 text-autumn-terracotta hover:text-autumn-burgundy transition-colors duration-200" aria-label="Copia causale">
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
@@ -97,8 +80,6 @@ const GiftRegistry = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default GiftRegistry;

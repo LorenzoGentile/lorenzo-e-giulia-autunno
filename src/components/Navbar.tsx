@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,6 @@ const Navbar = () => {
     { name: 'Dettagli Evento', href: '/#dettagli' },
     { name: 'RSVP', href: '/#rsvp' },
     { name: 'Galleria', href: '/#galleria' },
-    { name: 'Foto', href: '/photos' },
     { name: 'Lista Nozze', href: '/#lista-nozze' },
   ];
   

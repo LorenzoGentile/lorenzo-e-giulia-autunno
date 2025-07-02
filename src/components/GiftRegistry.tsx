@@ -3,8 +3,8 @@ import { Gift, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 const GiftRegistry = () => {
   const bankDetails = {
-    intestatario: "Lorenzo Rossi e Giulia Bianchi",
-    iban: "IT12A0123456789000000123456",
+    intestatario: "Gentile Lorenzo, Forte Giulia Ashley",
+    iban: "IT73V0832703395000000007597",
     causale: "Regalo Matrimonio Lorenzo e Giulia"
   };
   const copyToClipboard = (text: string, fieldName: string) => {

@@ -46,7 +46,7 @@ const Index = () => {
             Lorenzo & Giulia
           </h1>
           <p className="text-2xl md:text-3xl text-autumn-dark-brown font-light mb-12 font-cinzel">
-            Annunciano il loro matrimonio
+            Sono felici di annunciare il loro matrimonio
           </p>
           <div className="bg-white bg-opacity-90 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
             <CountdownTimer />

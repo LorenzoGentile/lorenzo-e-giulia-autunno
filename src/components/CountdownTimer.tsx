@@ -49,7 +49,7 @@ const CountdownTimer = () => {
   return (
     <div className="w-full max-w-4xl mx-auto">
       <h2 className="text-2xl font-cinzel-decorative text-autumn-burgundy text-center mb-8">
-        Ci Sposeremo
+        L' evento si terrà tra
       </h2>
       <div className="flex justify-center mb-8">
         <div className="flex flex-wrap justify-center gap-4 md:gap-8">

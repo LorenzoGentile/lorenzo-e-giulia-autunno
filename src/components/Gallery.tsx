@@ -121,9 +121,6 @@ const Gallery = () => {
                     target.src = 'https://images.unsplash.com/photo-1485833077593-4278bba3f11f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTR8fGF1dHVtbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60';
                   }} />
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-4">
-                        <p className="text-white text-center font-medium">{photo.caption}</p>
-                      </div>
                     </div>
                   </CarouselItem>)}
               </CarouselContent>

@@ -6,20 +6,19 @@ const EventDetails = () => {
     <div id="dettagli" className="section-container bg-opacity-20 bg-transparent">
       <h2 className="section-title">Dettagli dell'Evento</h2>
       
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center mb-4">
-          <Calendar className="w-6 h-6 text-autumn-terracotta mr-2" />
-          <span className="text-2xl font-playfair text-autumn-burgundy">19 Ottobre 2025</span>
-        </div>
-        <p className="text-lg text-gray-700">Vi invitiamo a celebrare il nostro matrimonio</p>
-      </div>
+      
       
       <div className="autumn-card max-w-3xl mx-auto text-center p-4 sm:p-8">
         <MapPin className="w-10 h-10 text-autumn-terracotta mb-4 mx-auto" />
         <h3 className="text-2xl sm:text-3xl font-playfair text-autumn-burgundy mb-2">Villa del Cardinale</h3>
         <p className="text-base sm:text-lg text-gray-600 mb-6">Via dei Laghi 7, Km 11, 00040 Rocca di Papa RM</p>
-
-        <div className="flex flex-col sm:flex-row sm:justify-center sm:divide-x-2 sm:divide-autumn-gold my-6 space-y-6 sm:space-y-0">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center mb-4">
+            <Calendar className="w-6 h-6 text-autumn-terracotta mr-2" />
+            <span className="text-3xl font-playfair text-autumn-burgundy">19 Ottobre 2025</span>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:justify-center sm:divide-x-2 sm:divide-autumn-gold my-6 space-y- sm:space-y-0">
           <div className="sm:px-8 text-center">
             <h4 className="text-xl sm:text-2xl font-playfair text-autumn-burgundy mb-2">La Cerimonia</h4>
             <div className="flex items-center justify-center">

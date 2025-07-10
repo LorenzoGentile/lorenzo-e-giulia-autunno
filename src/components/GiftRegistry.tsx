@@ -26,7 +26,7 @@ const GiftRegistry = () => {
           </h3>
           
           <p className="text-gray-700 mb-6">
-            La vostra presenza al nostro matrimonio è il dono più prezioso. Se desiderate comunque farci un regalo, vi saremmo grati se voleste contribuire al nostro viaggio di nozze in Giappone.
+            La vostra presenza al nostro matrimonio è il dono più prezioso. Se desiderate comunque farci un regalo, vi saremmo grati se voleste contribuire al nostro viaggio di nozze.
           </p>
           
           <div className="flex flex-col items-center">

@@ -272,9 +272,17 @@ const RsvpForm = () => {
       
       {step === 'email' ? (
         <>
-          <p className="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
-            Per favore, inserisci la tua email per verificare il tuo invito
-          </p>
+          <div className="text-center text-gray-700 mb-8 max-w-2xl mx-auto space-y-4">
+            <p>
+              Benvenuto nella sezione RSVP! Per confermare la tua presenza, il primo passo è verificare il tuo indirizzo email, lo stesso a cui hai ricevuto l'invito.
+            </p>
+            <p>
+              Una volta verificata l'email, ti verrà chiesto di accedere o creare un account. Questo passaggio è importante per garantire la sicurezza dei dati e ti darà la flessibilità di modificare la tua risposta in un secondo momento, qualora i tuoi piani dovessero cambiare.
+            </p>
+            <p>
+              Dopo aver effettuato l'accesso, potrai compilare il modulo RSVP con tutti i dettagli. Grazie per la collaborazione e non dimenticarti di salvare la tua risposta!
+            </p>
+          </div>
           <EmailVerificationForm onEmailVerified={handleEmailVerified} />
         </>
       ) : step === 'auth-required' ? (

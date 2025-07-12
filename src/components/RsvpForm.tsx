@@ -326,7 +326,7 @@ const RsvpForm = () => {
                 Quando invii il form, la risposta precedente verrà sostituita completamente.
               </span>
             )}
-            Vi preghiamo di confermare la vostra presenza entro il 15 Agosto 2025. Saremo felici di avervi con noi in questo giorno speciale!
+            Vi preghiamo di confermare la vostra presenza entro il 6 Settembre 2025. Saremo felici di avervi con noi in questo giorno speciale!
           </p>
           
           {guestInfo && (

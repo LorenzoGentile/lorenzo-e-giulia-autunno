@@ -67,7 +67,7 @@ const SignupForm = ({ email, setEmail, password, setPassword }: SignupFormProps)
       if (error) throw error;
       
       toast.success('Registrazione completata!', {
-        description: 'Ti abbiamo inviato un\'email di verifica. Per favore controlla la tua casella di posta.'
+        description: 'Rispondi al form di RSVP per confermare la tua presenza.'
       });
     } catch (error: any) {
       console.error('Signup error:', error);

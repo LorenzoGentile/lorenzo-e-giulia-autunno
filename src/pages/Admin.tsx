@@ -8,7 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Users, Calendar, MessageSquare, Shield, Image, UserPlus, Mail } from 'lucide-react';
+import { Loader2, Users, Calendar, MessageSquare, Shield, Image, UserPlus, Mail, ClipboardList } from 'lucide-react';
+import RsvpManagement from '@/components/admin/RsvpManagement';
 
 interface AdminStats {
   totalGuests: number;
@@ -306,9 +307,10 @@ const Admin = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="guests">Guest Management</TabsTrigger>
+            <TabsTrigger value="rsvp">RSVP Management</TabsTrigger>
             <TabsTrigger value="photos">Photo Management</TabsTrigger>
           </TabsList>
 
@@ -483,6 +485,10 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="rsvp" className="space-y-6">
+            <RsvpManagement />
           </TabsContent>
 
           <TabsContent value="photos" className="space-y-6">

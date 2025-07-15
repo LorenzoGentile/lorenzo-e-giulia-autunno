@@ -58,6 +58,7 @@ const RsvpManagement = () => {
   const loadGuestData = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading guest data...');
       
       // Load guests and their RSVP responses
       const [guestsResult, rsvpsResult, additionalGuestsResult] = await Promise.all([
@@ -70,10 +71,15 @@ const RsvpManagement = () => {
       if (rsvpsResult.error) throw rsvpsResult.error;
       if (additionalGuestsResult.error) throw additionalGuestsResult.error;
 
+      console.log('Additional guests data:', additionalGuestsResult.data);
+      console.log('RSVP responses:', rsvpsResult.data);
+
       // Combine guest and RSVP data
       const guestData: GuestData[] = guestsResult.data?.map(guest => {
         const rsvp = rsvpsResult.data?.find(r => r.guest_id === guest.id);
         const guestAdditionalGuests = additionalGuestsResult.data?.filter(ag => ag.rsvp_id === rsvp?.id) || [];
+        
+        console.log(`Guest ${guest.name} - RSVP ID: ${rsvp?.id}, Additional guests:`, guestAdditionalGuests);
         
         return {
           id: guest.id,
@@ -88,6 +94,7 @@ const RsvpManagement = () => {
         };
       }) || [];
 
+      console.log('Final guest data with additional guests:', guestData);
       setGuests(guestData);
     } catch (error: any) {
       console.error('Error loading guest data:', error);
@@ -102,6 +109,7 @@ const RsvpManagement = () => {
   };
 
   const openRsvpDialog = (guest: GuestData) => {
+    console.log('Opening RSVP dialog for guest:', guest);
     setSelectedGuest(guest);
     setAttending(guest.attending !== undefined ? (guest.attending ? 'yes' : 'no') : 'yes');
     setDietaryRestrictions(guest.dietary_restrictions || '');
@@ -130,6 +138,8 @@ const RsvpManagement = () => {
 
   const deleteExistingRsvp = async (rsvpId: string) => {
     try {
+      console.log('Deleting existing RSVP and additional guests for RSVP ID:', rsvpId);
+      
       // First delete additional guests
       const { error: deleteGuestsError } = await supabase
         .from('additional_guests')
@@ -159,6 +169,9 @@ const RsvpManagement = () => {
     setIsSubmitting(true);
     
     try {
+      console.log('Submitting RSVP for guest:', selectedGuest.name);
+      console.log('Additional guests to save:', additionalGuests);
+      
       // Delete existing RSVP if it exists
       if (selectedGuest.rsvp_id) {
         await deleteExistingRsvp(selectedGuest.rsvp_id);
@@ -178,6 +191,8 @@ const RsvpManagement = () => {
         
       if (rsvpError) throw rsvpError;
       
+      console.log('New RSVP created with ID:', rsvpData?.id);
+      
       // Insert additional guests if attending and there are any
       if (attending === 'yes' && hasPlusOne && additionalGuests.length > 0 && rsvpData?.id) {
         const additionalGuestsToInsert = additionalGuests
@@ -188,12 +203,15 @@ const RsvpManagement = () => {
             dietary_restrictions: guest.dietary_restrictions || null
           }));
           
+        console.log('Inserting additional guests:', additionalGuestsToInsert);
+          
         if (additionalGuestsToInsert.length > 0) {
           const { error: additionalGuestsError } = await supabase
             .from('additional_guests')
             .insert(additionalGuestsToInsert);
             
           if (additionalGuestsError) throw additionalGuestsError;
+          console.log('Additional guests inserted successfully');
         }
       }
       
@@ -262,7 +280,14 @@ const RsvpManagement = () => {
                     </TableCell>
                     <TableCell>
                       {guest.additional_guests && guest.additional_guests.length > 0 ? (
-                        <Badge variant="outline">{guest.additional_guests.length} guest(s)</Badge>
+                        <div className="space-y-1">
+                          <Badge variant="outline">{guest.additional_guests.length} guest(s)</Badge>
+                          <div className="text-xs text-gray-600">
+                            {guest.additional_guests.map((ag, index) => (
+                              <div key={index}>{ag.name}</div>
+                            ))}
+                          </div>
+                        </div>
                       ) : (
                         '-'
                       )}

@@ -8,8 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Users, Calendar, MessageSquare, Shield, Image, UserPlus, Mail, ClipboardList } from 'lucide-react';
+import { Loader2, Users, Calendar, MessageSquare, Shield, Image, UserPlus, Mail, ClipboardList, BarChart3, UserCheck, Camera, User } from 'lucide-react';
 import RsvpManagement from '@/components/admin/RsvpManagement';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AdminStats {
   totalGuests: number;
@@ -35,6 +36,7 @@ const Admin = () => {
   const { toast } = useToast();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -309,18 +311,19 @@ const Admin = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} py-6`}>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Wedding Admin Panel</h1>
-              <p className="text-gray-600">Manage your wedding website and guest responses</p>
+              <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}>Wedding Admin Panel</h1>
+              <p className={`text-gray-600 ${isMobile ? 'text-sm' : ''}`}>Manage your wedding website and guest responses</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className={`flex items-center ${isMobile ? 'justify-between' : 'space-x-4'}`}>
               <span className="text-sm text-gray-600">
                 Welcome, {user.email?.split('@')[0]}
               </span>
               <Button 
                 variant="outline" 
                 onClick={handleLogout}
+                size={isMobile ? 'sm' : 'default'}
               >
                 Log Out
               </Button>
@@ -331,16 +334,28 @@ const Admin = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="guests">Guest Management</TabsTrigger>
-            <TabsTrigger value="rsvp">RSVP Management</TabsTrigger>
-            <TabsTrigger value="photos">Photo Management</TabsTrigger>
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} ${isMobile ? 'gap-1' : ''}`}>
+            <TabsTrigger value="overview" className="flex items-center gap-1">
+              <BarChart3 className="h-4 w-4" />
+              {isMobile ? 'Stats' : 'Overview'}
+            </TabsTrigger>
+            <TabsTrigger value="guests" className="flex items-center gap-1">
+              <Users className="h-4 w-4" />
+              {isMobile ? 'Guests' : 'Guest Management'}
+            </TabsTrigger>
+            <TabsTrigger value="rsvp" className="flex items-center gap-1">
+              <UserCheck className="h-4 w-4" />
+              {isMobile ? 'RSVPs' : 'RSVP Management'}
+            </TabsTrigger>
+            <TabsTrigger value="photos" className="flex items-center gap-1">
+              <Camera className="h-4 w-4" />
+              {isMobile ? 'Photos' : 'Photo Management'}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             {stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
+              <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7'}`}>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Invited Guests</CardTitle>
@@ -455,8 +470,8 @@ const Admin = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-4 items-end">
-                  <div className="flex-1">
+                <div className={`${isMobile ? 'space-y-4' : 'flex gap-4 items-end'}`}>
+                  <div className={isMobile ? 'w-full' : 'flex-1'}>
                     <label className="text-sm font-medium">Name</label>
                     <Input
                       value={newGuestName}
@@ -464,7 +479,7 @@ const Admin = () => {
                       placeholder="Guest name"
                     />
                   </div>
-                  <div className="flex-1">
+                  <div className={isMobile ? 'w-full' : 'flex-1'}>
                     <label className="text-sm font-medium">Email</label>
                     <Input
                       type="email"
@@ -476,7 +491,7 @@ const Admin = () => {
                   <Button 
                     onClick={addNewGuest}
                     disabled={isAddingGuest}
-                    className="autumn-button"
+                    className={`autumn-button ${isMobile ? 'w-full' : ''}`}
                   >
                     {isAddingGuest ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -496,42 +511,80 @@ const Admin = () => {
                 <CardTitle>Guest List & RSVP Status</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>RSVP Status</TableHead>
-                        <TableHead>Dietary Restrictions</TableHead>
-                        <TableHead>Message</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {guests.map(guest => (
-                        <TableRow key={guest.id}>
-                          <TableCell className="font-medium">{guest.name}</TableCell>
-                          <TableCell>{guest.email}</TableCell>
-                          <TableCell>
-                            {guest.attending === undefined ? (
-                              <span className="text-gray-500">No response</span>
-                            ) : guest.attending ? (
-                              <span className="text-green-600 font-medium">Attending</span>
-                            ) : (
-                              <span className="text-red-600 font-medium">Not attending</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {guest.dietary_restrictions || '-'}
-                          </TableCell>
-                          <TableCell>
-                            {guest.message || '-'}
-                          </TableCell>
+                {isMobile ? (
+                  // Mobile card layout
+                  <div className="space-y-4">
+                    {guests.map(guest => (
+                      <Card key={guest.id} className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-semibold">{guest.name}</h4>
+                              <p className="text-sm text-muted-foreground">{guest.email}</p>
+                            </div>
+                            <div className="text-right">
+                              {guest.attending === undefined ? (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">No response</span>
+                              ) : guest.attending ? (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600">Attending</span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600">Not attending</span>
+                              )}
+                            </div>
+                          </div>
+                          {(guest.dietary_restrictions || guest.message) && (
+                            <div className="pt-2 border-t border-gray-100">
+                              {guest.dietary_restrictions && (
+                                <p className="text-sm"><span className="font-medium">Dietary:</span> {guest.dietary_restrictions}</p>
+                              )}
+                              {guest.message && (
+                                <p className="text-sm"><span className="font-medium">Message:</span> {guest.message}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  // Desktop table layout
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>RSVP Status</TableHead>
+                          <TableHead>Dietary Restrictions</TableHead>
+                          <TableHead>Message</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {guests.map(guest => (
+                          <TableRow key={guest.id}>
+                            <TableCell className="font-medium">{guest.name}</TableCell>
+                            <TableCell>{guest.email}</TableCell>
+                            <TableCell>
+                              {guest.attending === undefined ? (
+                                <span className="text-gray-500">No response</span>
+                              ) : guest.attending ? (
+                                <span className="text-green-600 font-medium">Attending</span>
+                              ) : (
+                                <span className="text-red-600 font-medium">Not attending</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {guest.dietary_restrictions || '-'}
+                            </TableCell>
+                            <TableCell>
+                              {guest.message || '-'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, UserPlus, Edit3, Plus, Minus, Trash2, ArrowUpDown } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface GuestData {
   id: string;
@@ -40,6 +41,7 @@ type SortOption = 'name' | 'recent' | 'status';
 
 const RsvpManagement = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [guests, setGuests] = useState<GuestData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedGuest, setSelectedGuest] = useState<GuestData | null>(null);
@@ -269,7 +271,7 @@ const RsvpManagement = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className={`${isMobile ? 'space-y-4' : 'flex items-center justify-between'}`}>
             <CardTitle className="flex items-center gap-2">
               <UserPlus className="h-5 w-5" />
               RSVP Management
@@ -279,7 +281,7 @@ const RsvpManagement = () => {
               <select 
                 value={sortBy} 
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="text-sm border rounded px-2 py-1"
+                className={`text-sm border rounded px-2 py-1 ${isMobile ? 'w-full' : ''}`}
               >
                 <option value="name">Sort by Name</option>
                 <option value="recent">Sort by Recent RSVP</option>
@@ -289,50 +291,43 @@ const RsvpManagement = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Guest Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>RSVP Status</TableHead>
-                  <TableHead>Additional Guests</TableHead>
-                  <TableHead>Response Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedGuests.map(guest => (
-                  <TableRow key={guest.id}>
-                    <TableCell className="font-medium">{guest.name}</TableCell>
-                    <TableCell>{guest.email}</TableCell>
-                    <TableCell>
-                      {guest.attending === undefined ? (
-                        <Badge variant="secondary">No Response</Badge>
-                      ) : guest.attending ? (
-                        <Badge variant="default" className="bg-green-600">Attending</Badge>
-                      ) : (
-                        <Badge variant="destructive">Not Attending</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {guest.additional_guests && guest.additional_guests.length > 0 ? (
+          {isMobile ? (
+            // Mobile card layout
+            <div className="space-y-4">
+              {sortedGuests.map(guest => (
+                <Card key={guest.id} className="p-4 border">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-base">{guest.name}</h4>
+                        <p className="text-sm text-muted-foreground">{guest.email}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        {guest.attending === undefined ? (
+                          <Badge variant="secondary">No Response</Badge>
+                        ) : guest.attending ? (
+                          <Badge variant="default" className="bg-green-600">Attending</Badge>
+                        ) : (
+                          <Badge variant="destructive">Not Attending</Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {guest.additional_guests && guest.additional_guests.length > 0 && (
+                      <div className="pt-2">
+                        <Badge variant="outline" className="mb-2">{guest.additional_guests.length} additional guest(s)</Badge>
                         <div className="space-y-1">
-                          <Badge variant="outline">{guest.additional_guests.length} guest(s)</Badge>
-                          <div className="text-xs text-gray-600">
-                            {guest.additional_guests.map((ag, index) => (
-                              <div key={index}>{ag.name}</div>
-                            ))}
-                          </div>
+                          {guest.additional_guests.map((ag, index) => (
+                            <p key={index} className="text-xs text-gray-600">• {ag.name}</p>
+                          ))}
                         </div>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {guest.created_at ? new Date(guest.created_at).toLocaleDateString() : '-'}
-                    </TableCell>
-                    <TableCell>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <p className="text-xs text-muted-foreground">
+                        {guest.created_at ? `RSVP: ${new Date(guest.created_at).toLocaleDateString()}` : 'No response date'}
+                      </p>
                       <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
                         if (!open) setIsDialogOpen(false);
                       }}>
@@ -342,11 +337,11 @@ const RsvpManagement = () => {
                             size="sm"
                             onClick={() => openRsvpDialog(guest)}
                           >
-                            <Edit3 className="h-4 w-4 mr-1" />
-                            {guest.rsvp_id ? 'Edit' : 'Add'} RSVP
+                            <Edit3 className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                          {/* Dialog content remains the same */}
                           <DialogHeader>
                             <DialogTitle>
                               {guest.rsvp_id ? 'Edit' : 'Add'} RSVP for {guest.name}
@@ -503,14 +498,238 @@ const RsvpManagement = () => {
                               </Button>
                             </div>
                           </div>
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                         </DialogContent>
+                       </Dialog>
+                     </div>
+                   </div>
+                 </Card>
+               ))}
+             </div>
+           ) : (
+             // Desktop table layout
+             <div className="overflow-x-auto">
+               <Table>
+                 <TableHeader>
+                   <TableRow>
+                     <TableHead>Guest Name</TableHead>
+                     <TableHead>Email</TableHead>
+                     <TableHead>RSVP Status</TableHead>
+                     <TableHead>Additional Guests</TableHead>
+                     <TableHead>Response Date</TableHead>
+                     <TableHead>Actions</TableHead>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {sortedGuests.map(guest => (
+                     <TableRow key={guest.id}>
+                       <TableCell className="font-medium">{guest.name}</TableCell>
+                       <TableCell>{guest.email}</TableCell>
+                       <TableCell>
+                         {guest.attending === undefined ? (
+                           <Badge variant="secondary">No Response</Badge>
+                         ) : guest.attending ? (
+                           <Badge variant="default" className="bg-green-600">Attending</Badge>
+                         ) : (
+                           <Badge variant="destructive">Not Attending</Badge>
+                         )}
+                       </TableCell>
+                       <TableCell>
+                         {guest.additional_guests && guest.additional_guests.length > 0 ? (
+                           <div className="space-y-1">
+                             <Badge variant="outline">{guest.additional_guests.length} guest(s)</Badge>
+                             <div className="text-xs text-gray-600">
+                               {guest.additional_guests.map((ag, index) => (
+                                 <div key={index}>{ag.name}</div>
+                               ))}
+                             </div>
+                           </div>
+                         ) : (
+                           '-'
+                         )}
+                       </TableCell>
+                       <TableCell>
+                         {guest.created_at ? new Date(guest.created_at).toLocaleDateString() : '-'}
+                       </TableCell>
+                       <TableCell>
+                         <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
+                           if (!open) setIsDialogOpen(false);
+                         }}>
+                           <DialogTrigger asChild>
+                             <Button 
+                               variant="outline" 
+                               size="sm"
+                               onClick={() => openRsvpDialog(guest)}
+                             >
+                               <Edit3 className="h-4 w-4 mr-1" />
+                               {guest.rsvp_id ? 'Edit' : 'Add'} RSVP
+                             </Button>
+                           </DialogTrigger>
+                           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                             <DialogHeader>
+                               <DialogTitle>
+                                 {selectedGuest?.rsvp_id ? 'Edit' : 'Add'} RSVP for {selectedGuest?.name}
+                               </DialogTitle>
+                             </DialogHeader>
+                             
+                             <div className="space-y-6">
+                               {/* Attendance */}
+                               <div className="space-y-4">
+                                 <Label className="text-base font-medium">Will they attend the wedding?</Label>
+                                 <RadioGroup 
+                                   value={attending} 
+                                   onValueChange={(value: 'yes' | 'no') => setAttending(value)}
+                                   className="flex flex-col space-y-2"
+                                 >
+                                   <div className="flex items-center space-x-2">
+                                     <RadioGroupItem value="yes" id="attending-yes" />
+                                     <Label htmlFor="attending-yes">Yes, they will attend</Label>
+                                   </div>
+                                   <div className="flex items-center space-x-2">
+                                     <RadioGroupItem value="no" id="attending-no" />
+                                     <Label htmlFor="attending-no">No, they cannot attend</Label>
+                                   </div>
+                                 </RadioGroup>
+                               </div>
+                               
+                               {/* Conditional fields based on attendance */}
+                               {attending === 'yes' && (
+                                 <>
+                                   <Separator />
+                                   
+                                   {/* Plus One Option */}
+                                   <div className="space-y-4">
+                                     <div className="flex items-center space-x-2">
+                                       <Checkbox
+                                         id="hasPlusOne"
+                                         checked={hasPlusOne}
+                                         onCheckedChange={(checked) => {
+                                           setHasPlusOne(!!checked);
+                                           if (!checked) {
+                                             setAdditionalGuests([]);
+                                           }
+                                         }}
+                                       />
+                                       <Label htmlFor="hasPlusOne" className="text-base">Will they bring additional guests?</Label>
+                                     </div>
+                                   </div>
+                                   
+                                   {/* Additional Guests */}
+                                   {hasPlusOne && (
+                                     <div className="space-y-4">
+                                       <div className="flex items-center justify-between">
+                                         <Label className="text-base">Additional Guests</Label>
+                                         <Button
+                                           type="button"
+                                           variant="outline"
+                                           size="sm"
+                                           onClick={addAdditionalGuest}
+                                         >
+                                           <Plus className="h-4 w-4 mr-1" />
+                                           Add Guest
+                                         </Button>
+                                       </div>
+                                       
+                                       {additionalGuests.map((guest, index) => (
+                                         <Card key={index} className="p-4">
+                                           <div className="space-y-3">
+                                             <div className="flex items-center justify-between">
+                                               <h4 className="font-medium">Guest {index + 1}</h4>
+                                               <Button
+                                                 type="button"
+                                                 variant="outline"
+                                                 size="sm"
+                                                 onClick={() => removeAdditionalGuest(index)}
+                                               >
+                                                 <Trash2 className="h-4 w-4" />
+                                               </Button>
+                                             </div>
+                                             
+                                             <div>
+                                               <Label htmlFor={`guest-${index}-name`}>Name</Label>
+                                               <Input
+                                                 id={`guest-${index}-name`}
+                                                 value={guest.name}
+                                                 onChange={(e) => updateAdditionalGuest(index, 'name', e.target.value)}
+                                                 placeholder="Guest name"
+                                               />
+                                             </div>
+                                             
+                                             <div>
+                                               <Label htmlFor={`guest-${index}-dietary`}>Dietary Restrictions</Label>
+                                               <Textarea
+                                                 id={`guest-${index}-dietary`}
+                                                 value={guest.dietary_restrictions}
+                                                 onChange={(e) => updateAdditionalGuest(index, 'dietary_restrictions', e.target.value)}
+                                                 placeholder="Any dietary restrictions or allergies"
+                                               />
+                                             </div>
+                                           </div>
+                                         </Card>
+                                       ))}
+                                     </div>
+                                   )}
+                                   
+                                   <Separator />
+                                   
+                                   {/* Dietary Restrictions */}
+                                   <div>
+                                     <Label htmlFor="dietaryRestrictions" className="text-base">Dietary Restrictions or Allergies</Label>
+                                     <Textarea
+                                       id="dietaryRestrictions"
+                                       value={dietaryRestrictions}
+                                       onChange={(e) => setDietaryRestrictions(e.target.value)}
+                                       placeholder="Any dietary restrictions or allergies"
+                                     />
+                                   </div>
+                                   
+                                   <Separator />
+                                   
+                                   {/* Song Request */}
+                                   <div>
+                                     <Label htmlFor="songRequest" className="text-base">Song Request</Label>
+                                     <Textarea
+                                       id="songRequest"
+                                       value={songRequest}
+                                       onChange={(e) => setSongRequest(e.target.value)}
+                                       placeholder="Any song requests for the reception"
+                                     />
+                                   </div>
+                                 </>
+                               )}
+                               
+                               <div className="flex justify-end space-x-2 pt-4">
+                                 <Button 
+                                   variant="outline" 
+                                   onClick={() => setIsDialogOpen(false)}
+                                   disabled={isSubmitting}
+                                 >
+                                   Cancel
+                                 </Button>
+                                 <Button 
+                                   onClick={handleSubmitRsvp}
+                                   disabled={isSubmitting}
+                                   className="autumn-button"
+                                 >
+                                   {isSubmitting ? (
+                                     <>
+                                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                       Saving...
+                                     </>
+                                   ) : (
+                                     'Save RSVP'
+                                   )}
+                                 </Button>
+                               </div>
+                             </div>
+                           </DialogContent>
+                         </Dialog>
+                       </TableCell>
+                     </TableRow>
+                   ))}
+                 </TableBody>
+               </Table>
+             </div>
+           )}
         </CardContent>
       </Card>
     </div>

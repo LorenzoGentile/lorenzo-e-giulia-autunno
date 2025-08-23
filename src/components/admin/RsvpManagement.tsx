@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, UserPlus, Edit3, Plus, Minus, Trash2 } from 'lucide-react';
+import { Loader2, UserPlus, Edit3, Plus, Minus, Trash2, ArrowUpDown } from 'lucide-react';
 
 interface GuestData {
   id: string;
@@ -36,6 +36,8 @@ interface AdditionalGuest {
   dietary_restrictions: string;
 }
 
+type SortOption = 'name' | 'recent' | 'status';
+
 const RsvpManagement = () => {
   const { toast } = useToast();
   const [guests, setGuests] = useState<GuestData[]>([]);
@@ -43,6 +45,7 @@ const RsvpManagement = () => {
   const [selectedGuest, setSelectedGuest] = useState<GuestData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('name');
 
   // Form state
   const [attending, setAttending] = useState<'yes' | 'no'>('yes');
@@ -234,6 +237,26 @@ const RsvpManagement = () => {
     }
   };
 
+  const sortedGuests = [...guests].sort((a, b) => {
+    switch (sortBy) {
+      case 'recent':
+        if (!a.created_at && !b.created_at) return 0;
+        if (!a.created_at) return 1;
+        if (!b.created_at) return -1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'status':
+        if (a.attending === b.attending) return a.name.localeCompare(b.name);
+        if (a.attending === undefined && b.attending !== undefined) return 1;
+        if (a.attending !== undefined && b.attending === undefined) return -1;
+        if (a.attending === true && b.attending === false) return -1;
+        if (a.attending === false && b.attending === true) return 1;
+        return 0;
+      case 'name':
+      default:
+        return a.name.localeCompare(b.name);
+    }
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -246,10 +269,24 @@ const RsvpManagement = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5" />
-            RSVP Management
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5" />
+              RSVP Management
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <select 
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="text-sm border rounded px-2 py-1"
+              >
+                <option value="name">Sort by Name</option>
+                <option value="recent">Sort by Recent RSVP</option>
+                <option value="status">Sort by Status</option>
+              </select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -265,7 +302,7 @@ const RsvpManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {guests.map(guest => (
+                {sortedGuests.map(guest => (
                   <TableRow key={guest.id}>
                     <TableCell className="font-medium">{guest.name}</TableCell>
                     <TableCell>{guest.email}</TableCell>

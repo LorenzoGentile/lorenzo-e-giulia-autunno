@@ -17,6 +17,8 @@ interface AdminStats {
   attendingGuests: number;
   notAttendingGuests: number;
   totalPhotos: number;
+  totalAdditionalGuests: number;
+  totalAttendees: number; // invited guests + additional guests who are attending
 }
 
 interface GuestData {
@@ -88,11 +90,12 @@ const Admin = () => {
     try {
       console.log('Loading admin data...');
       
-      // Load statistics
-      const [guestsResult, rsvpsResult, photosResult] = await Promise.all([
+      // Load statistics including additional guests
+      const [guestsResult, rsvpsResult, photosResult, additionalGuestsResult] = await Promise.all([
         supabase.from('invited_guests').select('*'),
         supabase.from('rsvp_responses').select('*'),
-        supabase.from('wedding_photos').select('id')
+        supabase.from('wedding_photos').select('id'),
+        supabase.from('additional_guests').select('*')
       ]);
 
       if (guestsResult.error) {
@@ -107,21 +110,42 @@ const Admin = () => {
         console.error('Error loading photos:', photosResult.error);
         throw photosResult.error;
       }
+      if (additionalGuestsResult.error) {
+        console.error('Error loading additional guests:', additionalGuestsResult.error);
+        throw additionalGuestsResult.error;
+      }
 
       const totalGuests = guestsResult.data?.length || 0;
       const totalRsvps = rsvpsResult.data?.length || 0;
       const attendingGuests = rsvpsResult.data?.filter(r => r.attending).length || 0;
       const notAttendingGuests = rsvpsResult.data?.filter(r => !r.attending).length || 0;
       const totalPhotos = photosResult.data?.length || 0;
+      
+      // Calculate additional guest statistics
+      const attendingRsvpIds = rsvpsResult.data?.filter(r => r.attending).map(r => r.id) || [];
+      const totalAdditionalGuests = additionalGuestsResult.data?.filter(ag => 
+        attendingRsvpIds.includes(ag.rsvp_id)
+      ).length || 0;
+      const totalAttendees = attendingGuests + totalAdditionalGuests;
 
-      console.log('Admin stats:', { totalGuests, totalRsvps, attendingGuests, notAttendingGuests, totalPhotos });
+      console.log('Admin stats:', { 
+        totalGuests, 
+        totalRsvps, 
+        attendingGuests, 
+        notAttendingGuests, 
+        totalPhotos, 
+        totalAdditionalGuests, 
+        totalAttendees 
+      });
 
       setStats({
         totalGuests,
         totalRsvps,
         attendingGuests,
         notAttendingGuests,
-        totalPhotos
+        totalPhotos,
+        totalAdditionalGuests,
+        totalAttendees
       });
 
       // Combine guest and RSVP data
@@ -316,10 +340,10 @@ const Admin = () => {
 
           <TabsContent value="overview" className="space-y-6">
             {stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Guests</CardTitle>
+                    <CardTitle className="text-sm font-medium">Invited Guests</CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -342,11 +366,36 @@ const Admin = () => {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Attending</CardTitle>
+                    <CardTitle className="text-sm font-medium">Attending Guests</CardTitle>
                     <Calendar className="h-4 w-4 text-green-600" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-green-600">{stats.attendingGuests}</div>
+                    <p className="text-xs text-muted-foreground">invited guests</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Additional Guests</CardTitle>
+                    <UserPlus className="h-4 w-4 text-blue-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-blue-600">{stats.totalAdditionalGuests}</div>
+                    <p className="text-xs text-muted-foreground">plus ones & family</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Attendees</CardTitle>
+                    <ClipboardList className="h-4 w-4 text-purple-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-purple-600">{stats.totalAttendees}</div>
+                    <p className="text-xs text-muted-foreground">
+                      guests + additional
+                    </p>
                   </CardContent>
                 </Card>
 

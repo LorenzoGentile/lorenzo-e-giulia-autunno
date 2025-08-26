@@ -157,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
         `;
 
         const emailResponse = await resend.emails.send({
-          from: "Lorenzo & Giulia <wedding@resend.dev>",
+          from: "Lorenzo & Giulia <lorengentile1892@gmail.com>",
           to: [guest.email],
           subject: "Promemoria RSVP - Matrimonio Lorenzo & Giulia 💕",
           html: emailHtml,

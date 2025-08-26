@@ -137,7 +137,7 @@ const handler = async (req: Request): Promise<Response> => {
 
                   <!-- RSVP Button -->
                   <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://sikyaqsurjgsobxxbgml.supabase.co" 
+                    <a href="https://lorenzo-e-giulia.it/" 
                        style="display: inline-block; background: linear-gradient(135deg, hsl(22, 47%, 55%) 0%, hsl(37, 85%, 76%) 100%); color: hsl(45, 38%, 98%); text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s; font-family: 'Cinzel', serif;">
                       Conferma la Tua Presenza
                     </a>

@@ -50,6 +50,8 @@ export type Database = {
           id: string
           invite_code: string
           name: string
+          reminder_count: number | null
+          reminder_sent_at: string | null
         }
         Insert: {
           created_at?: string
@@ -57,6 +59,8 @@ export type Database = {
           id?: string
           invite_code: string
           name: string
+          reminder_count?: number | null
+          reminder_sent_at?: string | null
         }
         Update: {
           created_at?: string
@@ -64,6 +68,8 @@ export type Database = {
           id?: string
           invite_code?: string
           name?: string
+          reminder_count?: number | null
+          reminder_sent_at?: string | null
         }
         Relationships: []
       }

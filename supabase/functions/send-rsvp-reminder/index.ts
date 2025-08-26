@@ -172,16 +172,12 @@ const handler = async (req: Request): Promise<Response> => {
 
           // Update the guest's reminder tracking
           const { error: updateError } = await supabaseClient
-            .from('rsvp_responses')
-            .upsert({
-              guest_id: guest.id,
-              attending: null,
+            .from('invited_guests')
+            .update({
               reminder_sent_at: new Date().toISOString(),
-              reminder_count: 1
-            }, {
-              onConflict: 'guest_id',
-              ignoreDuplicates: false
-            });
+              reminder_count: (guest.reminder_count || 0) + 1
+            })
+            .eq('id', guest.id);
 
           if (updateError) {
             console.error(`Failed to update reminder tracking for ${guest.email}:`, updateError);

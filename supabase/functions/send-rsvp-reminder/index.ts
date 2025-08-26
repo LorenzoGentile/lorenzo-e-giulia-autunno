@@ -114,11 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <h2 style="color: hsl(25, 30%, 20%); margin: 0 0 20px 0; font-size: 24px; font-family: 'Cinzel Decorative', serif;">Caro/a ${guest.name},</h2>
                   
                   <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
-                    Speriamo che questo messaggio ti trovi in buona salute! Volevamo contattarti riguardo alla nostra prossima celebrazione di matrimonio.
-                  </p>
-
-                  <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 0 0 30px 0; font-size: 16px;">
-                    Non abbiamo ancora ricevuto la tua conferma di partecipazione e volevamo assicurarci che tu abbia ricevuto il nostro invito. La tua presenza significherebbe molto per noi mentre celebriamo questo giorno speciale!
+                    Speriamo che questo messaggio ti trovi in buona salute! Non abbiamo ancora ricevuto la tua conferma di partecipazione e volevamo assicurarci che tu abbia ricevuto il nostro invito. La tua presenza significherebbe molto per noi mentre celebriamo questo giorno speciale!
                   </p>
 
                   <!-- Wedding Details Box -->

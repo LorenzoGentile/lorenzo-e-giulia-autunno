@@ -97,60 +97,62 @@ const handler = async (req: Request): Promise<Response> => {
             <head>
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>RSVP Reminder - Sarah & Michael's Wedding</title>
+              <title>Promemoria RSVP - Matrimonio Lorenzo & Giulia</title>
+              <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@300;400;500;600;700&display=swap" rel="stylesheet">
             </head>
-            <body style="margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
-              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+            <body style="margin: 0; padding: 20px; font-family: 'Cinzel', serif; background: linear-gradient(135deg, #FFF 0%, #FAF5F3 100%); color: hsl(25, 30%, 20%);">
+              <div style="max-width: 600px; margin: 0 auto; background-color: hsl(45, 38%, 98%); border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid hsl(25, 15%, 80%);">
                 
                 <!-- Header -->
-                <div style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: white; padding: 30px; text-align: center;">
-                  <h1 style="margin: 0; font-size: 28px; font-weight: 300;">Sarah & Michael</h1>
-                  <p style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;">RSVP Reminder</p>
+                <div style="background: linear-gradient(135deg, hsl(22, 47%, 55%) 0%, hsl(37, 85%, 76%) 100%); color: hsl(45, 38%, 98%); padding: 40px 30px; text-align: center;">
+                  <h1 style="margin: 0; font-size: 32px; font-weight: 700; font-family: 'Cinzel Decorative', serif;">Lorenzo & Giulia</h1>
+                  <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9; font-family: 'Cinzel', serif;">Promemoria RSVP</p>
                 </div>
 
                 <!-- Content -->
-                <div style="padding: 40px 30px;">
-                  <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">Dear ${guest.name},</h2>
+                <div style="padding: 40px 30px; font-family: 'Cinzel', serif;">
+                  <h2 style="color: hsl(25, 30%, 20%); margin: 0 0 20px 0; font-size: 24px; font-family: 'Cinzel Decorative', serif;">Caro/a ${guest.name},</h2>
                   
-                  <p style="color: #4b5563; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
-                    We hope this message finds you well! We wanted to reach out regarding our upcoming wedding celebration.
+                  <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+                    Speriamo che questo messaggio ti trovi in buona salute! Volevamo contattarti riguardo alla nostra prossima celebrazione di matrimonio.
                   </p>
 
-                  <p style="color: #4b5563; line-height: 1.6; margin: 0 0 30px 0; font-size: 16px;">
-                    We haven't yet received your RSVP and wanted to make sure you received our invitation. Your presence would mean the world to us as we celebrate this special day!
+                  <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 0 0 30px 0; font-size: 16px;">
+                    Non abbiamo ancora ricevuto la tua conferma di partecipazione e volevamo assicurarci che tu abbia ricevuto il nostro invito. La tua presenza significherebbe molto per noi mentre celebriamo questo giorno speciale!
                   </p>
 
                   <!-- Wedding Details Box -->
-                  <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0;">
-                    <h3 style="color: #92400e; margin: 0 0 15px 0; font-size: 18px;">Wedding Details</h3>
-                    <p style="color: #92400e; margin: 5px 0; font-size: 14px;"><strong>Date:</strong> [Wedding Date]</p>
-                    <p style="color: #92400e; margin: 5px 0; font-size: 14px;"><strong>Time:</strong> [Wedding Time]</p>
-                    <p style="color: #92400e; margin: 5px 0; font-size: 14px;"><strong>Venue:</strong> [Wedding Venue]</p>
-                    <p style="color: #92400e; margin: 5px 0; font-size: 14px;"><strong>RSVP Deadline:</strong> [RSVP Deadline]</p>
+                  <div style="background: linear-gradient(135deg, hsl(45, 38%, 98%) 0%, hsl(37, 85%, 90%) 100%); border-left: 4px solid hsl(22, 47%, 55%); padding: 25px; margin: 30px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                    <h3 style="color: hsl(22, 47%, 55%); margin: 0 0 15px 0; font-size: 20px; font-family: 'Cinzel Decorative', serif;">Dettagli del Matrimonio</h3>
+                    <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Data:</strong> 19 Ottobre 2025</p>
+                    <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Cerimonia:</strong> ore 12:00</p>
+                    <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Ricevimento:</strong> ore 14:00</p>
+                    <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Location:</strong> Villa del Cardinale</p>
+                    <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Indirizzo:</strong> Via dei Laghi 7, Km 11, 00040 Rocca di Papa RM</p>
                   </div>
 
-                  <p style="color: #4b5563; line-height: 1.6; margin: 30px 0 20px 0; font-size: 16px;">
-                    Please let us know if you'll be able to join us by visiting our wedding website:
+                  <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 30px 0 20px 0; font-size: 16px;">
+                    Ti preghiamo di farci sapere se potrai unirti a noi visitando il nostro sito web di matrimonio:
                   </p>
 
                   <!-- RSVP Button -->
                   <div style="text-align: center; margin: 30px 0;">
                     <a href="https://sikyaqsurjgsobxxbgml.supabase.co" 
-                       style="display: inline-block; background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s;">
-                      RSVP Now
+                       style="display: inline-block; background: linear-gradient(135deg, hsl(22, 47%, 55%) 0%, hsl(37, 85%, 76%) 100%); color: hsl(45, 38%, 98%); text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s; font-family: 'Cinzel', serif;">
+                      Conferma la Tua Presenza
                     </a>
                   </div>
 
-                  <p style="color: #6b7280; line-height: 1.6; margin: 30px 0 0 0; font-size: 14px; text-align: center;">
-                    If you have any questions or need assistance with your RSVP, please don't hesitate to contact us.
+                  <p style="color: hsl(25, 15%, 40%); line-height: 1.6; margin: 30px 0 0 0; font-size: 14px; text-align: center;">
+                    Se hai domande o hai bisogno di assistenza con la tua conferma, non esitare a contattarci.
                   </p>
                 </div>
 
                 <!-- Footer -->
-                <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-                  <p style="color: #9ca3af; margin: 0; font-size: 12px;">
-                    With love and excitement,<br>
-                    <strong style="color: #6b7280;">Sarah & Michael</strong>
+                <div style="background-color: hsl(25, 10%, 90%); padding: 25px 30px; text-align: center; border-top: 1px solid hsl(25, 15%, 80%);">
+                  <p style="color: hsl(25, 15%, 40%); margin: 0; font-size: 14px; font-family: 'Cinzel', serif;">
+                    Con amore e attesa,<br>
+                    <strong style="color: hsl(25, 30%, 20%); font-family: 'Cinzel Decorative', serif;">Lorenzo & Giulia</strong>
                   </p>
                 </div>
               </div>
@@ -159,9 +161,9 @@ const handler = async (req: Request): Promise<Response> => {
         `;
 
         const emailResponse = await resend.emails.send({
-          from: "Sarah & Michael <wedding@resend.dev>",
+          from: "Lorenzo & Giulia <wedding@resend.dev>",
           to: [guest.email],
-          subject: "RSVP Reminder - Sarah & Michael's Wedding 💕",
+          subject: "Promemoria RSVP - Matrimonio Lorenzo & Giulia 💕",
           html: emailHtml,
         });
 

@@ -153,6 +153,8 @@ export type Database = {
           guest_id: string
           id: string
           message: string | null
+          reminder_count: number | null
+          reminder_sent_at: string | null
           updated_at: string
         }
         Insert: {
@@ -162,6 +164,8 @@ export type Database = {
           guest_id: string
           id?: string
           message?: string | null
+          reminder_count?: number | null
+          reminder_sent_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -171,6 +175,8 @@ export type Database = {
           guest_id?: string
           id?: string
           message?: string | null
+          reminder_count?: number | null
+          reminder_sent_at?: string | null
           updated_at?: string
         }
         Relationships: [

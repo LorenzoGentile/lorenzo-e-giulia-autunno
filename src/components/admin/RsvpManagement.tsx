@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, UserPlus, Edit3, Plus, Minus, Trash2, ArrowUpDown } from 'lucide-react';
+import { Loader2, UserPlus, Edit3, Plus, Minus, Trash2, ArrowUpDown, Mail, Send } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface GuestData {
@@ -48,6 +48,8 @@ const RsvpManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [isSendingReminders, setIsSendingReminders] = useState(false);
+  const [reminderStats, setReminderStats] = useState({ total: 0, responded: 0, notResponded: 0 });
 
   // Form state
   const [attending, setAttending] = useState<'yes' | 'no'>('yes');
@@ -101,6 +103,12 @@ const RsvpManagement = () => {
 
       console.log('Final guest data with additional guests:', guestData);
       setGuests(guestData);
+      
+      // Calculate reminder statistics
+      const total = guestData.length;
+      const responded = guestData.filter(g => g.attending !== undefined).length;
+      const notResponded = total - responded;
+      setReminderStats({ total, responded, notResponded });
     } catch (error: any) {
       console.error('Error loading guest data:', error);
       toast({
@@ -239,6 +247,73 @@ const RsvpManagement = () => {
     }
   };
 
+  const sendReminderToGuest = async (guestId: string) => {
+    try {
+      setIsSendingReminders(true);
+      console.log('Sending individual reminder to guest:', guestId);
+      
+      const { data, error } = await supabase.functions.invoke('send-rsvp-reminder', {
+        body: { guestId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Reminder sent successfully",
+        description: data.message || "RSVP reminder has been sent",
+      });
+
+      await loadGuestData(); // Refresh data to update reminder tracking
+    } catch (error: any) {
+      console.error('Error sending individual reminder:', error);
+      toast({
+        title: "Error sending reminder",
+        description: error.message || "Failed to send RSVP reminder",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingReminders(false);
+    }
+  };
+
+  const sendBatchReminders = async () => {
+    try {
+      setIsSendingReminders(true);
+      console.log('Sending batch reminders to all non-responders');
+      
+      const nonResponders = guests.filter(g => g.attending === undefined);
+      if (nonResponders.length === 0) {
+        toast({
+          title: "No reminders to send",
+          description: "All guests have already responded to their RSVPs",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('send-rsvp-reminder', {
+        body: { guestIds: nonResponders.map(g => g.id) }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Batch reminders sent",
+        description: data.message || `Sent ${data.sent} reminder emails`,
+      });
+
+      await loadGuestData(); // Refresh data to update reminder tracking
+    } catch (error: any) {
+      console.error('Error sending batch reminders:', error);
+      toast({
+        title: "Error sending reminders",
+        description: error.message || "Failed to send RSVP reminders",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingReminders(false);
+    }
+  };
+
   const sortedGuests = [...guests].sort((a, b) => {
     switch (sortBy) {
       case 'recent':
@@ -291,6 +366,50 @@ const RsvpManagement = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {/* RSVP Statistics and Reminder Controls */}
+          <div className="mb-6">
+            <div className={`grid gap-4 mb-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{reminderStats.total}</div>
+                  <div className="text-sm text-muted-foreground">Total Invited</div>
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{reminderStats.responded}</div>
+                  <div className="text-sm text-muted-foreground">Responded</div>
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600">{reminderStats.notResponded}</div>
+                  <div className="text-sm text-muted-foreground">Need Reminders</div>
+                </div>
+              </Card>
+            </div>
+            
+            {/* Batch Reminder Button */}
+            <div className="flex justify-center">
+              <Button
+                onClick={sendBatchReminders}
+                disabled={isSendingReminders || reminderStats.notResponded === 0}
+                className={`${isMobile ? 'w-full' : ''} autumn-button`}
+              >
+                {isSendingReminders ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Sending Reminders...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Reminders to {reminderStats.notResponded} Guests
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
           {isMobile ? (
             // Mobile card layout
             <div className="space-y-4">
@@ -328,18 +447,29 @@ const RsvpManagement = () => {
                       <p className="text-xs text-muted-foreground">
                         {guest.created_at ? `RSVP: ${new Date(guest.created_at).toLocaleDateString()}` : 'No response date'}
                       </p>
-                      <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
-                        if (!open) setIsDialogOpen(false);
-                      }}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
+                      <div className="flex gap-2">
+                        {guest.attending === undefined && (
+                          <Button
+                            variant="outline"
                             size="sm"
-                            onClick={() => openRsvpDialog(guest)}
+                            onClick={() => sendReminderToGuest(guest.id)}
+                            disabled={isSendingReminders}
                           >
-                            <Edit3 className="h-4 w-4" />
+                            <Mail className="h-4 w-4" />
                           </Button>
-                        </DialogTrigger>
+                        )}
+                        <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
+                          if (!open) setIsDialogOpen(false);
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => openRsvpDialog(guest)}
+                            >
+                              <Edit3 className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                           {/* Dialog content remains the same */}
                           <DialogHeader>
@@ -499,9 +629,10 @@ const RsvpManagement = () => {
                             </div>
                           </div>
                          </DialogContent>
-                       </Dialog>
-                     </div>
-                   </div>
+                        </Dialog>
+                      </div>
+                    </div>
+                  </div>
                  </Card>
                ))}
              </div>
@@ -550,20 +681,32 @@ const RsvpManagement = () => {
                        <TableCell>
                          {guest.created_at ? new Date(guest.created_at).toLocaleDateString() : '-'}
                        </TableCell>
-                       <TableCell>
-                         <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
-                           if (!open) setIsDialogOpen(false);
-                         }}>
-                           <DialogTrigger asChild>
-                             <Button 
-                               variant="outline" 
-                               size="sm"
-                               onClick={() => openRsvpDialog(guest)}
-                             >
-                               <Edit3 className="h-4 w-4 mr-1" />
-                               {guest.rsvp_id ? 'Edit' : 'Add'} RSVP
-                             </Button>
-                           </DialogTrigger>
+                        <TableCell>
+                           <div className="flex gap-2">
+                             {guest.attending === undefined && (
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 onClick={() => sendReminderToGuest(guest.id)}
+                                 disabled={isSendingReminders}
+                               >
+                                 <Mail className="h-4 w-4 mr-1" />
+                                 Remind
+                               </Button>
+                             )}
+                             <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
+                               if (!open) setIsDialogOpen(false);
+                             }}>
+                               <DialogTrigger asChild>
+                                 <Button 
+                                   variant="outline" 
+                                   size="sm"
+                                   onClick={() => openRsvpDialog(guest)}
+                                 >
+                                   <Edit3 className="h-4 w-4 mr-1" />
+                                   {guest.rsvp_id ? 'Edit' : 'Add'} RSVP
+                                 </Button>
+                               </DialogTrigger>
                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                              <DialogHeader>
                                <DialogTitle>
@@ -722,8 +865,9 @@ const RsvpManagement = () => {
                                </div>
                              </div>
                            </DialogContent>
-                         </Dialog>
-                       </TableCell>
+                          </Dialog>
+                           </div>
+                        </TableCell>
                      </TableRow>
                    ))}
                  </TableBody>

@@ -58,14 +58,16 @@ export const submitRsvpResponse = async (
   try {
     console.log('Submitting RSVP for guest ID:', guestId);
     
-    // Insert RSVP response
+    // Use upsert to handle the unique constraint gracefully
     const { data: rsvpData, error: rsvpError } = await supabase
       .from('rsvp_responses')
-      .insert({
+      .upsert({
         guest_id: guestId,
         attending: attending,
         dietary_restrictions: dietaryRestrictions,
         message: message,
+      }, {
+        onConflict: 'guest_id'
       })
       .select('id')
       .single();
@@ -77,8 +79,19 @@ export const submitRsvpResponse = async (
     
     console.log('RSVP response inserted:', rsvpData);
     
-    // Insert additional guests if attending and there are any
+    // Handle additional guests if attending and there are any
     if (attending && additionalGuests.length > 0 && rsvpData?.id) {
+      // First, delete any existing additional guests for this RSVP
+      const { error: deleteError } = await supabase
+        .from('additional_guests')
+        .delete()
+        .eq('rsvp_id', rsvpData.id);
+        
+      if (deleteError) {
+        console.error('Error deleting existing additional guests:', deleteError);
+        // Don't throw here, just log - we can still proceed with insertion
+      }
+      
       const additionalGuestsToInsert = additionalGuests
         .filter(guest => guest.name.trim() !== '')
         .map(guest => ({
@@ -100,6 +113,17 @@ export const submitRsvpResponse = async (
         }
         
         console.log('Additional guests inserted successfully');
+      }
+    } else if (!attending && rsvpData?.id) {
+      // If not attending, make sure to clean up any additional guests
+      const { error: deleteError } = await supabase
+        .from('additional_guests')
+        .delete()
+        .eq('rsvp_id', rsvpData.id);
+        
+      if (deleteError) {
+        console.error('Error deleting additional guests for non-attending RSVP:', deleteError);
+        // Don't throw here, just log
       }
     }
     

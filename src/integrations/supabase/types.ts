@@ -189,7 +189,7 @@ export type Database = {
           {
             foreignKeyName: "rsvp_responses_guest_id_fkey"
             columns: ["guest_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "invited_guests"
             referencedColumns: ["id"]
           },

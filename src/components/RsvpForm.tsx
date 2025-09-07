@@ -202,19 +202,18 @@ const RsvpForm = () => {
       return;
     }
     
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      console.log('Submission already in progress, ignoring duplicate request');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
       console.log('Submitting RSVP. Existing RSVP:', existingRsvp);
       
-      if (existingRsvp) {
-        console.log('Deleting existing RSVP before creating new one');
-        // Delete existing RSVP and additional guests before creating new ones
-        await deleteExistingRsvp(existingRsvp.id);
-        toast.success('Risposta precedente rimossa. Creazione nuova risposta...');
-      }
-      
-      // Always create new RSVP (whether replacing existing or creating first time)
+      // Use upsert which handles both new and existing RSVPs
       await submitRsvpResponse(
         guestInfo.id,
         formData.attending === 'yes',

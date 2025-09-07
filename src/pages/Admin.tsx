@@ -436,29 +436,55 @@ const Admin = () => {
               </div>
             )}
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Response Rate</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {stats && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Response Rate</span>
-                      <span>{stats.totalGuests > 0 ? Math.round((stats.totalRsvps / stats.totalGuests) * 100) : 0}%</span>
+            {/* Quick Actions */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button 
+                    onClick={() => navigate('/tables')}
+                    className="w-full autumn-button flex items-center gap-2"
+                  >
+                    <ClipboardList className="h-4 w-4" />
+                    Gestione Tavoli
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/photos')}
+                    variant="outline"
+                    className="w-full flex items-center gap-2"
+                  >
+                    <Camera className="h-4 w-4" />
+                    Galleria Foto
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Response Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {stats && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Response Rate</span>
+                        <span>{stats.totalGuests > 0 ? Math.round((stats.totalRsvps / stats.totalGuests) * 100) : 0}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-autumn-amber h-2 rounded-full transition-all duration-300" 
+                          style={{ 
+                            width: stats.totalGuests > 0 ? `${(stats.totalRsvps / stats.totalGuests) * 100}%` : '0%' 
+                          }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-autumn-amber h-2 rounded-full transition-all duration-300" 
-                        style={{ 
-                          width: stats.totalGuests > 0 ? `${(stats.totalRsvps / stats.totalGuests) * 100}%` : '0%' 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="guests" className="space-y-6">

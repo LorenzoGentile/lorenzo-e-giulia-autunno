@@ -20,18 +20,21 @@ export type Database = {
           id: string
           name: string
           rsvp_id: string
+          table_id: string | null
         }
         Insert: {
           dietary_restrictions?: string | null
           id?: string
           name: string
           rsvp_id: string
+          table_id?: string | null
         }
         Update: {
           dietary_restrictions?: string | null
           id?: string
           name?: string
           rsvp_id?: string
+          table_id?: string | null
         }
         Relationships: [
           {
@@ -39,6 +42,13 @@ export type Database = {
             columns: ["rsvp_id"]
             isOneToOne: false
             referencedRelation: "rsvp_responses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "additional_guests_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_tables"
             referencedColumns: ["id"]
           },
         ]
@@ -52,6 +62,7 @@ export type Database = {
           name: string
           reminder_count: number | null
           reminder_sent_at: string | null
+          table_id: string | null
         }
         Insert: {
           created_at?: string
@@ -61,6 +72,7 @@ export type Database = {
           name: string
           reminder_count?: number | null
           reminder_sent_at?: string | null
+          table_id?: string | null
         }
         Update: {
           created_at?: string
@@ -70,8 +82,17 @@ export type Database = {
           name?: string
           reminder_count?: number | null
           reminder_sent_at?: string | null
+          table_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invited_guests_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_tables"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       photo_comments: {
         Row: {
@@ -247,6 +268,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      wedding_tables: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          table_name: string | null
+          table_number: number
+          updated_at: string
+          x_position: number | null
+          y_position: number | null
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          table_name?: string | null
+          table_number: number
+          updated_at?: string
+          x_position?: number | null
+          y_position?: number | null
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          table_name?: string | null
+          table_number?: number
+          updated_at?: string
+          x_position?: number | null
+          y_position?: number | null
+        }
+        Relationships: []
       }
     }
     Views: {

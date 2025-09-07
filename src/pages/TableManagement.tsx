@@ -47,7 +47,7 @@ interface GuestWithTable {
 
 const TableManagement: React.FC = () => {
   const { user } = useAuth();
-  const { isAdmin } = useAdminRole();
+  const { isAdmin, isLoading: isLoadingAdmin } = useAdminRole();
   const [tables, setTables] = useState<WeddingTable[]>([]);
   const [guests, setGuests] = useState<GuestWithTable[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,7 +59,20 @@ const TableManagement: React.FC = () => {
     capacity: '8'
   });
 
-  if (!user || !isAdmin) {
+  // Show loading while checking admin status
+  if (!user || isLoadingAdmin) {
+    return (
+      <div className="min-h-screen bg-autumn-cream bg-opacity-10 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-autumn-burgundy mx-auto mb-4"></div>
+          <p className="text-autumn-burgundy">Caricamento...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to auth if not admin
+  if (!isAdmin) {
     return <Navigate to="/auth" replace />;
   }
 

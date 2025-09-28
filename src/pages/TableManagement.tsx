@@ -223,7 +223,7 @@ const TableManagement: React.FC = () => {
   };
 
   const getUnassignedGuests = () => {
-    return guests.filter(guest => !guest.table_id);
+    return guests.filter(guest => !guest.table_id && guest.rsvp_attending !== false);
   };
 
   const getAttendingGuests = () => {

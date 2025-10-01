@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 
 const Navette = () => {
   const { user } = useAuth();
@@ -206,11 +207,11 @@ const Navette = () => {
                       <div className="space-y-4 ml-6">
                         <div>
                           <Label htmlFor="outbound_location">Luogo di partenza preferito *</Label>
-                          <Input
+                          <AddressAutocomplete
                             id="outbound_location"
                             value={formData.outbound_location}
-                            onChange={(e) => setFormData({ ...formData, outbound_location: e.target.value })}
-                            placeholder="Es. Milano Centrale"
+                            onChange={(value) => setFormData({ ...formData, outbound_location: value })}
+                            placeholder="Es. Milano Centrale, Via Roma 1"
                             required
                           />
                         </div>

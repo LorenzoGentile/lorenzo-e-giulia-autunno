@@ -37,7 +37,6 @@ const Navbar = () => {
 
   const userLinks = [
     { name: 'Navette', href: '/navette' },
-    { name: 'Foto', href: '/photos' },
   ];
   
   const handleLogout = async () => {

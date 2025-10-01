@@ -75,7 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Matrimonio <onboarding@resend.dev>",
+      from: "Lorenzo & Giulia <noreply@lorenzo-e-giulia.it>",
       to: [guestEmail],
       subject: "Conferma ricezione preferenze navetta",
       html: `

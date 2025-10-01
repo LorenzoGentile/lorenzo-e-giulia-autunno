@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0;url=/?to=navette" />
+    <title>Reindirizzamento…</title>
+    <script>
+      // JS fallback to ensure redirect
+      (function(){
+        var target = '/?to=navette';
+        if (location.search.indexOf('to=') === -1) {
+          window.location.replace(target);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    Reindirizzamento alla pagina navette…
+  </body>
+</html>

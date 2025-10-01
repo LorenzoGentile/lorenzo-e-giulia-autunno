@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import CountdownTimer from '@/components/CountdownTimer';
 import OurStory from '@/components/OurStory';
@@ -9,6 +10,17 @@ import GiftRegistry from '@/components/GiftRegistry';
 import Footer from '@/components/Footer';
 
 const Index = () => {
+  const navigate = useNavigate();
+  
+  // Handle deep-link fallback: /?to=navette -> navigate to /navette
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const to = params.get('to');
+    if (to === 'navette') {
+      navigate('/navette', { replace: true });
+    }
+  }, [navigate]);
+
   // Smooth scrolling for anchor links
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {

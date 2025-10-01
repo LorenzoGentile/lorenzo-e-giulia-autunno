@@ -90,6 +90,7 @@ const Navette = () => {
     setLoading(true);
 
     try {
+      // Save preferences to database
       const { error } = await supabase
         .from("shuttle_preferences")
         .upsert({
@@ -107,6 +108,33 @@ const Navette = () => {
         });
 
       if (error) throw error;
+
+      // Get guest name for email
+      const { data: guestData } = await supabase
+        .from("invited_guests")
+        .select("name")
+        .eq("id", guestId)
+        .single();
+
+      // Send confirmation email
+      try {
+        await supabase.functions.invoke("send-shuttle-confirmation", {
+          body: {
+            guestName: guestData?.name || "Ospite",
+            guestEmail: user?.email,
+            interested: formData.interested,
+            outboundWanted: formData.outbound_wanted,
+            outboundLocation: formData.outbound_location,
+            outboundTime: formData.outbound_time,
+            returnWanted: formData.return_wanted,
+            returnTime: formData.return_time,
+            numberOfPeople: formData.number_of_people,
+          },
+        });
+      } catch (emailError) {
+        console.error("Error sending confirmation email:", emailError);
+        // Don't block the user if email fails
+      }
 
       toast.success("Preferenze salvate con successo!");
       navigate("/");

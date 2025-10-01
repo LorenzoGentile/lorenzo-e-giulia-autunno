@@ -128,13 +128,14 @@ const ShuttleManagement = () => {
   const totalPeople = guests
     .filter(g => g.shuttle_preferences?.[0]?.interested)
     .reduce((sum, g) => sum + (g.shuttle_preferences?.[0]?.number_of_people || 0), 0);
+  const totalEmailsSent = guests.reduce((sum, g) => sum + (g.shuttle_notification_count || 0), 0);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Gestione Navette</CardTitle>
         <CardDescription>
-          {guests.length} invitati totali • {respondedCount} hanno risposto • {interestedCount} interessati • {totalPeople} persone • {selectedGuests.size} selezionati
+          {guests.length} invitati totali • {totalEmailsSent} email inviate • {respondedCount} hanno risposto • {interestedCount} interessati • {totalPeople} persone • {selectedGuests.size} selezionati
         </CardDescription>
       </CardHeader>
       <CardContent>

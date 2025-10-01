@@ -115,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
                   </div>
 
                   <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 30px 0 20px 0; font-size: 16px;">
-                    Ti chiediamo di compilare il form dedicato per comunicarci le tue preferenze:
+                    Ti chiediamo di compilare il form dedicato per comunicarci le tue preferenze entro Sabato 4 Ottobre:
                   </p>
 
                   <!-- CTA Button -->

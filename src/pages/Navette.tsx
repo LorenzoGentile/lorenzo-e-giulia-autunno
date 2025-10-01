@@ -98,10 +98,12 @@ const Navette = () => {
           outbound_wanted: formData.outbound_wanted,
           outbound_location: formData.outbound_location,
           outbound_alternative_location: formData.outbound_alternative_available ? "Sì" : null,
-          outbound_time: formData.outbound_time,
+          outbound_time: formData.outbound_time || null,
           return_wanted: formData.return_wanted,
-          return_time: formData.return_time,
+          return_time: formData.return_time || null,
           number_of_people: formData.number_of_people,
+        }, {
+          onConflict: 'guest_id'
         });
 
       if (error) throw error;

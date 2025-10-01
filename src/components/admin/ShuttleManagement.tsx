@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Loader2, Send } from "lucide-react";
 
 interface ShuttlePreference {
   id: string;
@@ -30,6 +32,7 @@ interface ShuttlePreference {
 const ShuttleManagement = () => {
   const [preferences, setPreferences] = useState<ShuttlePreference[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSendingNotifications, setIsSendingNotifications] = useState(false);
 
   useEffect(() => {
     fetchPreferences();
@@ -58,6 +61,26 @@ const ShuttleManagement = () => {
     }
   };
 
+  const sendShuttleNotifications = async () => {
+    try {
+      setIsSendingNotifications(true);
+      console.log("Sending shuttle notifications to all attending guests");
+
+      const { data, error } = await supabase.functions.invoke('send-shuttle-notification', {
+        body: {}
+      });
+
+      if (error) throw error;
+
+      toast.success(data.message || `Inviati ${data.sent} email di notifica navette`);
+    } catch (error: any) {
+      console.error("Error sending shuttle notifications:", error);
+      toast.error(error.message || "Errore nell'invio delle notifiche navette");
+    } finally {
+      setIsSendingNotifications(false);
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Caricamento...</div>;
   }
@@ -76,6 +99,28 @@ const ShuttleManagement = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Notification Button */}
+        <div className="mb-6 flex justify-center">
+          <Button
+            onClick={sendShuttleNotifications}
+            disabled={isSendingNotifications}
+            className="autumn-button"
+          >
+            {isSendingNotifications ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Invio in corso...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4 mr-2" />
+                Invia Notifica Navette a Tutti gli Invitati Confermati
+              </>
+            )}
+          </Button>
+        </div>
+        
+        
         <div className="rounded-md border">
           <Table>
             <TableHeader>

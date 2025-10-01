@@ -62,6 +62,8 @@ export type Database = {
           name: string
           reminder_count: number | null
           reminder_sent_at: string | null
+          shuttle_notification_count: number | null
+          shuttle_notification_sent_at: string | null
           table_id: string | null
         }
         Insert: {
@@ -72,6 +74,8 @@ export type Database = {
           name: string
           reminder_count?: number | null
           reminder_sent_at?: string | null
+          shuttle_notification_count?: number | null
+          shuttle_notification_sent_at?: string | null
           table_id?: string | null
         }
         Update: {
@@ -82,6 +86,8 @@ export type Database = {
           name?: string
           reminder_count?: number | null
           reminder_sent_at?: string | null
+          shuttle_notification_count?: number | null
+          shuttle_notification_sent_at?: string | null
           table_id?: string | null
         }
         Relationships: [

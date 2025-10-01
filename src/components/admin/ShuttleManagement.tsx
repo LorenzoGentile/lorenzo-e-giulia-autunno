@@ -19,6 +19,8 @@ interface InvitedGuest {
   id: string;
   name: string;
   email: string;
+  shuttle_notification_count?: number;
+  shuttle_notification_sent_at?: string;
   shuttle_preferences?: Array<{
     id: string;
     interested: boolean;
@@ -49,6 +51,8 @@ const ShuttleManagement = () => {
           id,
           name,
           email,
+          shuttle_notification_count,
+          shuttle_notification_sent_at,
           shuttle_preferences (
             id,
             interested,
@@ -167,6 +171,7 @@ const ShuttleManagement = () => {
                   />
                 </TableHead>
                 <TableHead>Nome Invitato</TableHead>
+                <TableHead>Email Inviate</TableHead>
                 <TableHead>Stato Risposta</TableHead>
                 <TableHead>Interesse</TableHead>
                 <TableHead>Andata</TableHead>
@@ -177,7 +182,7 @@ const ShuttleManagement = () => {
             <TableBody>
               {guests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground">
                     Nessun invitato trovato
                   </TableCell>
                 </TableRow>
@@ -196,6 +201,17 @@ const ShuttleManagement = () => {
                       </TableCell>
                       <TableCell className="font-medium">
                         {guest.name}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {guest.shuttle_notification_count ? (
+                            <Badge variant="outline">
+                              {guest.shuttle_notification_count} {guest.shuttle_notification_count === 1 ? 'email' : 'emails'}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">Nessuna</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={hasResponded ? "default" : "secondary"}>

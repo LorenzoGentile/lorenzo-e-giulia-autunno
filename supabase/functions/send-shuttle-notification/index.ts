@@ -156,6 +156,19 @@ const handler = async (req: Request): Promise<Response> => {
         } else {
           console.log(`Email sent successfully to ${guest.email}`, emailResponse);
           emailResults.push({ guest: guest.name, email: guest.email, id: emailResponse.data?.id });
+          
+          // Update shuttle notification counter for this guest
+          const { error: updateError } = await supabaseClient
+            .from('invited_guests')
+            .update({
+              shuttle_notification_count: supabaseClient.raw('shuttle_notification_count + 1'),
+              shuttle_notification_sent_at: new Date().toISOString()
+            })
+            .eq('id', guest.id);
+          
+          if (updateError) {
+            console.error(`Failed to update notification counter for ${guest.email}:`, updateError);
+          }
         }
 
         // Add a small delay to avoid rate limiting

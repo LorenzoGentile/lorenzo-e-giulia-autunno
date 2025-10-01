@@ -261,15 +261,32 @@ const Navette = () => {
                     </div>
 
                     {formData.return_wanted && (
-                      <div className="ml-6">
-                        <Label htmlFor="return_time">Orario preferito *</Label>
-                        <Input
-                          id="return_time"
-                          type="time"
+                      <div className="ml-6 space-y-3">
+                        <Label className="text-base">Fascia oraria preferita *</Label>
+                        <RadioGroup
                           value={formData.return_time}
-                          onChange={(e) => setFormData({ ...formData, return_time: e.target.value })}
+                          onValueChange={(value) => setFormData({ ...formData, return_time: value })}
                           required
-                        />
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="18:30-20:00" id="time1" />
+                            <Label htmlFor="time1" className="font-normal cursor-pointer">
+                              18:30-20:00 (dopo il taglio della torta)
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="20:00-21:00" id="time2" />
+                            <Label htmlFor="time2" className="font-normal cursor-pointer">
+                              20:00-21:00 (balliamo un po')
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="21:30-22:00" id="time3" />
+                            <Label htmlFor="time3" className="font-normal cursor-pointer">
+                              21:30-22:00 (a fine festa)
+                            </Label>
+                          </div>
+                        </RadioGroup>
                       </div>
                     )}
                   </div>

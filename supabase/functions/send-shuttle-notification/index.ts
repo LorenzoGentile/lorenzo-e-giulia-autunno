@@ -103,14 +103,14 @@ const handler = async (req: Request): Promise<Response> => {
                   <h2 style="color: hsl(25, 30%, 20%); margin: 0 0 20px 0; font-size: 24px; font-family: 'Cinzel Decorative', serif;">Caro/a ${guest.name},</h2>
                   
                   <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
-                    Siamo felici che tu abbia confermato la tua presenza al nostro matrimonio! Per facilitare gli spostamenti verso e dalla location, stiamo organizzando un servizio di navette.
+                    Siamo felici che tu abbia confermato la tua presenza al nostro matrimonio! Per facilitare gli spostamenti verso e dalla location, stiamo coordinando un servizio di navette.
                   </p>
 
                   <!-- Shuttle Info Box -->
                   <div style="background: linear-gradient(135deg, hsl(45, 38%, 98%) 0%, hsl(37, 85%, 90%) 100%); border-left: 4px solid hsl(22, 47%, 55%); padding: 25px; margin: 30px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
                     <h3 style="color: hsl(22, 47%, 55%); margin: 0 0 15px 0; font-size: 20px; font-family: 'Cinzel Decorative', serif;">Perché Compilare il Form</h3>
                     <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px; line-height: 1.6;">
-                      Il form ci aiuterà a capire quante persone sono interessate al servizio navetta, sia per l'andata che per il ritorno. In questo modo potremo organizzare al meglio il trasporto per tutti.
+                      Il form ci aiuterà a capire quante persone sono interessate al servizio navetta, sia per l'andata che per il ritorno.
                     </p>
                   </div>
 

@@ -34,6 +34,11 @@ const Navbar = () => {
     { name: 'Galleria', href: '/#galleria' },
     { name: 'Lista Nozze', href: '/#lista-nozze' },
   ];
+
+  const userLinks = [
+    { name: 'Navette', href: '/navette' },
+    { name: 'Foto', href: '/photos' },
+  ];
   
   const handleLogout = async () => {
     try {
@@ -67,6 +72,15 @@ const Navbar = () => {
               >
                 {link.name}
               </a>
+            ))}
+            {user && userLinks.map(link => (
+              <Link 
+                key={link.name}
+                to={link.href} 
+                className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
+              >
+                {link.name}
+              </Link>
             ))}
           </div>
 
@@ -124,6 +138,16 @@ const Navbar = () => {
                   >
                     {link.name}
                   </a>
+                ))}
+                
+                {user && userLinks.map(link => (
+                  <Link 
+                    key={link.name}
+                    to={link.href} 
+                    className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
+                  >
+                    {link.name}
+                  </Link>
                 ))}
                 
                 <div className="pt-4 border-t border-gray-200">

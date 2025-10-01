@@ -216,6 +216,59 @@ export type Database = {
           },
         ]
       }
+      shuttle_preferences: {
+        Row: {
+          created_at: string
+          guest_id: string
+          id: string
+          interested: boolean
+          number_of_people: number | null
+          outbound_alternative_location: string | null
+          outbound_location: string | null
+          outbound_time: string | null
+          outbound_wanted: boolean | null
+          return_time: string | null
+          return_wanted: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guest_id: string
+          id?: string
+          interested: boolean
+          number_of_people?: number | null
+          outbound_alternative_location?: string | null
+          outbound_location?: string | null
+          outbound_time?: string | null
+          outbound_wanted?: boolean | null
+          return_time?: string | null
+          return_wanted?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guest_id?: string
+          id?: string
+          interested?: boolean
+          number_of_people?: number | null
+          outbound_alternative_location?: string | null
+          outbound_location?: string | null
+          outbound_time?: string | null
+          outbound_wanted?: boolean | null
+          return_time?: string | null
+          return_wanted?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shuttle_preferences_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: true
+            referencedRelation: "invited_guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null

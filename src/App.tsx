@@ -12,6 +12,7 @@ import Admin from "./pages/Admin";
 import Photos from "./pages/Photos";
 import Auth from "./pages/Auth";
 import TableManagement from "./pages/TableManagement";
+import Navette from "./pages/Navette";
 import AutumnLeaves from "./components/AutumnLeaves";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/photos" element={<Photos />} />
             <Route path="/tables" element={<TableManagement />} />
+            <Route path="/navette" element={<Navette />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -8,8 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Users, Calendar, MessageSquare, Shield, Image, UserPlus, Mail, ClipboardList, BarChart3, UserCheck, Camera, User } from 'lucide-react';
+import { Loader2, Users, Calendar, MessageSquare, Shield, Image, UserPlus, Mail, ClipboardList, BarChart3, UserCheck, Camera, User, Bus } from 'lucide-react';
 import RsvpManagement from '@/components/admin/RsvpManagement';
+import ShuttleManagement from '@/components/admin/ShuttleManagement';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AdminStats {
@@ -334,7 +335,7 @@ const Admin = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} ${isMobile ? 'gap-1' : ''}`}>
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-3' : 'grid-cols-5'} ${isMobile ? 'gap-1' : ''}`}>
             <TabsTrigger value="overview" className="flex items-center gap-1">
               <BarChart3 className="h-4 w-4" />
               {isMobile ? 'Stats' : 'Overview'}
@@ -346,6 +347,10 @@ const Admin = () => {
             <TabsTrigger value="rsvp" className="flex items-center gap-1">
               <UserCheck className="h-4 w-4" />
               {isMobile ? 'RSVPs' : 'RSVP Management'}
+            </TabsTrigger>
+            <TabsTrigger value="shuttle" className="flex items-center gap-1">
+              <Bus className="h-4 w-4" />
+              {isMobile ? 'Navette' : 'Gestione Navette'}
             </TabsTrigger>
             <TabsTrigger value="photos" className="flex items-center gap-1">
               <Camera className="h-4 w-4" />
@@ -617,6 +622,10 @@ const Admin = () => {
 
           <TabsContent value="rsvp" className="space-y-6">
             <RsvpManagement />
+          </TabsContent>
+
+          <TabsContent value="shuttle" className="space-y-6">
+            <ShuttleManagement />
           </TabsContent>
 
           <TabsContent value="photos" className="space-y-6">

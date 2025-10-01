@@ -100,6 +100,7 @@ const ShuttleManagement = () => {
 
       toast.success(data.message || `Inviati ${data.sent} email di notifica navette`);
       setSelectedGuests(new Set());
+      await fetchPreferences(); // Refresh the list to show updated counts
     } catch (error: any) {
       console.error("Error sending shuttle notifications:", error);
       toast.error(error.message || "Errore nell'invio delle notifiche navette");

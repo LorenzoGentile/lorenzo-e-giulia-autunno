@@ -157,11 +157,18 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`Email sent successfully to ${guest.email}`, emailResponse);
           emailResults.push({ guest: guest.name, email: guest.email, id: emailResponse.data?.id });
           
+          // Get current notification count
+          const { data: currentGuest } = await supabaseClient
+            .from('invited_guests')
+            .select('shuttle_notification_count')
+            .eq('id', guest.id)
+            .single();
+          
           // Update shuttle notification counter for this guest
           const { error: updateError } = await supabaseClient
             .from('invited_guests')
             .update({
-              shuttle_notification_count: supabaseClient.raw('shuttle_notification_count + 1'),
+              shuttle_notification_count: (currentGuest?.shuttle_notification_count || 0) + 1,
               shuttle_notification_sent_at: new Date().toISOString()
             })
             .eq('id', guest.id);

@@ -225,7 +225,6 @@ export type Database = {
           number_of_people: number | null
           outbound_alternative_location: string | null
           outbound_location: string | null
-          outbound_time: string | null
           outbound_wanted: boolean | null
           return_time: string | null
           return_wanted: boolean | null
@@ -239,7 +238,6 @@ export type Database = {
           number_of_people?: number | null
           outbound_alternative_location?: string | null
           outbound_location?: string | null
-          outbound_time?: string | null
           outbound_wanted?: boolean | null
           return_time?: string | null
           return_wanted?: boolean | null
@@ -253,7 +251,6 @@ export type Database = {
           number_of_people?: number | null
           outbound_alternative_location?: string | null
           outbound_location?: string | null
-          outbound_time?: string | null
           outbound_wanted?: boolean | null
           return_time?: string | null
           return_wanted?: boolean | null

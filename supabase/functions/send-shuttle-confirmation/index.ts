@@ -14,7 +14,6 @@ interface ShuttleConfirmationRequest {
   interested: boolean;
   outboundWanted: boolean;
   outboundLocation?: string;
-  outboundTime?: string;
   returnWanted: boolean;
   returnTime?: string;
   numberOfPeople: number;
@@ -33,7 +32,6 @@ const handler = async (req: Request): Promise<Response> => {
       interested,
       outboundWanted,
       outboundLocation,
-      outboundTime,
       returnWanted,
       returnTime,
       numberOfPeople,
@@ -53,7 +51,6 @@ const handler = async (req: Request): Promise<Response> => {
         preferencesHtml += `
           <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Andata:</strong> Sì</p>
           <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Luogo di partenza:</strong> ${outboundLocation || "Non specificato"}</p>
-          <p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Orario preferito:</strong> ${outboundTime || "Non specificato"}</p>
         `;
       } else {
         preferencesHtml += `<p style="color: hsl(25, 30%, 20%); margin: 8px 0; font-size: 15px;"><strong>Andata:</strong> No</p>`;

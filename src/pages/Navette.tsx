@@ -24,7 +24,6 @@ const Navette = () => {
     outbound_wanted: false,
     outbound_location: "",
     outbound_alternative_available: false,
-    outbound_time: "",
     return_wanted: false,
     return_time: "",
     number_of_people: 1
@@ -58,7 +57,6 @@ const Navette = () => {
           outbound_wanted: prefsData.outbound_wanted || false,
           outbound_location: prefsData.outbound_location || "",
           outbound_alternative_available: prefsData.outbound_alternative_location ? true : false,
-          outbound_time: prefsData.outbound_time || "",
           return_wanted: prefsData.return_wanted || false,
           return_time: prefsData.return_time || "",
           number_of_people: prefsData.number_of_people || 1
@@ -86,7 +84,6 @@ const Navette = () => {
         outbound_wanted: formData.outbound_wanted,
         outbound_location: formData.outbound_location,
         outbound_alternative_location: formData.outbound_alternative_available ? "Sì" : null,
-        outbound_time: formData.outbound_time || null,
         return_wanted: formData.return_wanted,
         return_time: formData.return_time || null,
         number_of_people: formData.number_of_people
@@ -109,7 +106,6 @@ const Navette = () => {
             interested: formData.interested,
             outboundWanted: formData.outbound_wanted,
             outboundLocation: formData.outbound_location,
-            outboundTime: formData.outbound_time,
             returnWanted: formData.return_wanted,
             returnTime: formData.return_time,
             numberOfPeople: formData.number_of_people
@@ -195,14 +191,6 @@ const Navette = () => {
                           <Label htmlFor="outbound_alternative" className="font-normal cursor-pointer">
                             Sei disponibile a partire anche da un altro luogo?
                           </Label>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="outbound_time">Orario preferito *</Label>
-                          <Input id="outbound_time" type="time" value={formData.outbound_time} onChange={e => setFormData({
-                      ...formData,
-                      outbound_time: e.target.value
-                    })} required />
                         </div>
                       </div>}
                   </div>

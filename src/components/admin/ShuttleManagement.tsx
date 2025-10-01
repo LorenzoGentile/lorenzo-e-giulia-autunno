@@ -19,7 +19,6 @@ interface ShuttlePreference {
   outbound_wanted: boolean;
   outbound_location: string | null;
   outbound_alternative_location: string | null;
-  outbound_time: string | null;
   return_wanted: boolean;
   return_time: string | null;
   number_of_people: number;
@@ -113,7 +112,6 @@ const ShuttleManagement = () => {
                           {pref.outbound_alternative_location && (
                             <div><strong>Alternativa:</strong> {pref.outbound_alternative_location}</div>
                           )}
-                          <div><strong>Orario:</strong> {pref.outbound_time || "-"}</div>
                         </div>
                       ) : (
                         <span className="text-muted-foreground">-</span>

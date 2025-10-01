@@ -32,17 +32,25 @@ const handler = async (req: Request): Promise<Response> => {
       .select(`
         id,
         name,
-        email,
-        rsvp_responses!inner (
-          id,
-          attending
-        )
-      `)
-      .eq('rsvp_responses.attending', true);
+        email
+      `);
     
-    // If specific guest IDs provided, filter by them
+    // If specific guest IDs provided, filter by them, otherwise get all attending guests
     if (guestIds && Array.isArray(guestIds) && guestIds.length > 0) {
       query = query.in('id', guestIds);
+    } else {
+      // If no specific guests, only send to those who have confirmed attendance
+      query = query
+        .select(`
+          id,
+          name,
+          email,
+          rsvp_responses!inner (
+            id,
+            attending
+          )
+        `)
+        .eq('rsvp_responses.attending', true);
     }
 
     const { data: attendingGuests, error: queryError } = await query;

@@ -15,23 +15,24 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2, Send } from "lucide-react";
 
-interface ShuttlePreference {
+interface InvitedGuest {
   id: string;
-  guest_id: string;
-  interested: boolean;
-  outbound_wanted: boolean;
-  outbound_location: string | null;
-  outbound_alternative_location: string | null;
-  return_wanted: boolean;
-  return_time: string | null;
-  number_of_people: number;
-  invited_guests: {
-    name: string;
-  };
+  name: string;
+  email: string;
+  shuttle_preferences?: Array<{
+    id: string;
+    interested: boolean;
+    outbound_wanted: boolean;
+    outbound_location: string | null;
+    outbound_alternative_location: string | null;
+    return_wanted: boolean;
+    return_time: string | null;
+    number_of_people: number;
+  }> | null;
 }
 
 const ShuttleManagement = () => {
-  const [preferences, setPreferences] = useState<ShuttlePreference[]>([]);
+  const [guests, setGuests] = useState<InvitedGuest[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSendingNotifications, setIsSendingNotifications] = useState(false);
   const [selectedGuests, setSelectedGuests] = useState<Set<string>>(new Set());
@@ -43,21 +44,30 @@ const ShuttleManagement = () => {
   const fetchPreferences = async () => {
     try {
       const { data, error } = await supabase
-        .from("shuttle_preferences")
+        .from("invited_guests")
         .select(`
-          *,
-          invited_guests (
-            name
+          id,
+          name,
+          email,
+          shuttle_preferences (
+            id,
+            interested,
+            outbound_wanted,
+            outbound_location,
+            outbound_alternative_location,
+            return_wanted,
+            return_time,
+            number_of_people
           )
         `)
-        .order("created_at", { ascending: false });
+        .order("name", { ascending: true });
 
       if (error) throw error;
 
-      setPreferences(data || []);
+      setGuests(data as any || []);
     } catch (error: any) {
-      console.error("Error fetching shuttle preferences:", error);
-      toast.error("Errore nel caricamento delle preferenze");
+      console.error("Error fetching guests:", error);
+      toast.error("Errore nel caricamento degli invitati");
     } finally {
       setLoading(false);
     }
@@ -98,10 +108,10 @@ const ShuttleManagement = () => {
   };
 
   const toggleAllGuests = () => {
-    if (selectedGuests.size === preferences.length) {
+    if (selectedGuests.size === guests.length) {
       setSelectedGuests(new Set());
     } else {
-      setSelectedGuests(new Set(preferences.map(p => p.guest_id)));
+      setSelectedGuests(new Set(guests.map(g => g.id)));
     }
   };
 
@@ -109,17 +119,18 @@ const ShuttleManagement = () => {
     return <div className="text-center py-8">Caricamento...</div>;
   }
 
-  const interestedCount = preferences.filter(p => p.interested).length;
-  const totalPeople = preferences
-    .filter(p => p.interested)
-    .reduce((sum, p) => sum + (p.number_of_people || 0), 0);
+  const respondedCount = guests.filter(g => g.shuttle_preferences && g.shuttle_preferences.length > 0).length;
+  const interestedCount = guests.filter(g => g.shuttle_preferences?.[0]?.interested).length;
+  const totalPeople = guests
+    .filter(g => g.shuttle_preferences?.[0]?.interested)
+    .reduce((sum, g) => sum + (g.shuttle_preferences?.[0]?.number_of_people || 0), 0);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Gestione Navette</CardTitle>
         <CardDescription>
-          {interestedCount} invitati interessati • {totalPeople} persone totali • {selectedGuests.size} selezionati
+          {guests.length} invitati totali • {respondedCount} hanno risposto • {interestedCount} interessati • {totalPeople} persone • {selectedGuests.size} selezionati
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -151,11 +162,12 @@ const ShuttleManagement = () => {
               <TableRow>
                 <TableHead className="w-12">
                   <Checkbox
-                    checked={selectedGuests.size === preferences.length && preferences.length > 0}
+                    checked={selectedGuests.size === guests.length && guests.length > 0}
                     onCheckedChange={toggleAllGuests}
                   />
                 </TableHead>
                 <TableHead>Nome Invitato</TableHead>
+                <TableHead>Stato Risposta</TableHead>
                 <TableHead>Interesse</TableHead>
                 <TableHead>Andata</TableHead>
                 <TableHead>Ritorno</TableHead>
@@ -163,55 +175,69 @@ const ShuttleManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {preferences.length === 0 ? (
+              {guests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    Nessuna preferenza registrata
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    Nessun invitato trovato
                   </TableCell>
                 </TableRow>
               ) : (
-                preferences.map((pref) => (
-                  <TableRow key={pref.id}>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedGuests.has(pref.guest_id)}
-                        onCheckedChange={() => toggleGuestSelection(pref.guest_id)}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {pref.invited_guests?.name || "Nome non disponibile"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={pref.interested ? "default" : "secondary"}>
-                        {pref.interested ? "Sì" : "No"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {pref.interested && pref.outbound_wanted ? (
-                        <div className="text-sm space-y-1">
-                          <div><strong>Luogo:</strong> {pref.outbound_location || "-"}</div>
-                          {pref.outbound_alternative_location && (
-                            <div><strong>Alternativa:</strong> {pref.outbound_alternative_location}</div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {pref.interested && pref.return_wanted ? (
-                        <div className="text-sm">
-                          <strong>Orario:</strong> {pref.return_time || "-"}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {pref.interested ? pref.number_of_people : "-"}
-                    </TableCell>
-                  </TableRow>
-                ))
+                guests.map((guest) => {
+                  const pref = guest.shuttle_preferences?.[0];
+                  const hasResponded = !!pref;
+                  
+                  return (
+                    <TableRow key={guest.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedGuests.has(guest.id)}
+                          onCheckedChange={() => toggleGuestSelection(guest.id)}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {guest.name}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={hasResponded ? "default" : "secondary"}>
+                          {hasResponded ? "Risposto" : "Non risposto"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {hasResponded ? (
+                          <Badge variant={pref.interested ? "default" : "secondary"}>
+                            {pref.interested ? "Sì" : "No"}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {hasResponded && pref.interested && pref.outbound_wanted ? (
+                          <div className="text-sm space-y-1">
+                            <div><strong>Luogo:</strong> {pref.outbound_location || "-"}</div>
+                            {pref.outbound_alternative_location && (
+                              <div><strong>Alternativa:</strong> {pref.outbound_alternative_location}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {hasResponded && pref.interested && pref.return_wanted ? (
+                          <div className="text-sm">
+                            <strong>Orario:</strong> {pref.return_time || "-"}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {hasResponded && pref.interested ? pref.number_of_people : "-"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

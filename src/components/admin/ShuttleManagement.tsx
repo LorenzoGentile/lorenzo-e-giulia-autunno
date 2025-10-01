@@ -21,7 +21,7 @@ interface InvitedGuest {
   email: string;
   shuttle_notification_count?: number;
   shuttle_notification_sent_at?: string;
-  shuttle_preferences?: Array<{
+  shuttle_preferences?: {
     id: string;
     interested: boolean;
     outbound_wanted: boolean;
@@ -30,7 +30,7 @@ interface InvitedGuest {
     return_wanted: boolean;
     return_time: string | null;
     number_of_people: number;
-  }> | null;
+  } | null;
 }
 
 const ShuttleManagement = () => {
@@ -132,11 +132,11 @@ const ShuttleManagement = () => {
     return <div className="text-center py-8">Caricamento...</div>;
   }
 
-  const respondedCount = guests.filter(g => g.shuttle_preferences && g.shuttle_preferences.length > 0).length;
-  const interestedCount = guests.filter(g => g.shuttle_preferences?.[0]?.interested).length;
+  const respondedCount = guests.filter(g => g.shuttle_preferences).length;
+  const interestedCount = guests.filter(g => g.shuttle_preferences?.interested).length;
   const totalPeople = guests
-    .filter(g => g.shuttle_preferences?.[0]?.interested)
-    .reduce((sum, g) => sum + (g.shuttle_preferences?.[0]?.number_of_people || 0), 0);
+    .filter(g => g.shuttle_preferences?.interested)
+    .reduce((sum, g) => sum + (g.shuttle_preferences?.number_of_people || 0), 0);
   const totalEmailsSent = guests.reduce((sum, g) => sum + (g.shuttle_notification_count || 0), 0);
 
   return (
@@ -198,7 +198,7 @@ const ShuttleManagement = () => {
                 </TableRow>
               ) : (
                 guests.map((guest) => {
-                  const pref = guest.shuttle_preferences?.[0];
+                  const pref = guest.shuttle_preferences;
                   const hasResponded = !!pref;
                   
                   return (

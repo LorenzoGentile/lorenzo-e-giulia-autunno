@@ -45,6 +45,8 @@ const ShuttleManagement = () => {
 
   const fetchPreferences = async () => {
     try {
+      console.log("Fetching guests with RSVP attending=true and shuttle preferences...");
+      
       const { data, error } = await supabase
         .from("invited_guests")
         .select(`
@@ -53,6 +55,9 @@ const ShuttleManagement = () => {
           email,
           shuttle_notification_count,
           shuttle_notification_sent_at,
+          rsvp_responses!inner(
+            attending
+          ),
           shuttle_preferences (
             id,
             interested,
@@ -64,9 +69,13 @@ const ShuttleManagement = () => {
             number_of_people
           )
         `)
+        .eq('rsvp_responses.attending', true)
         .order("name", { ascending: true });
 
       if (error) throw error;
+
+      console.log("Query result:", data);
+      console.log(`Found ${data?.length || 0} guests with attending RSVP`);
 
       setGuests(data as any || []);
     } catch (error: any) {

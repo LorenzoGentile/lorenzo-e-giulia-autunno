@@ -13,9 +13,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 const Navette = () => {
-  const {
-    user
-  } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [guestId, setGuestId] = useState<string | null>(null);
@@ -29,12 +27,14 @@ const Navette = () => {
     number_of_people: 1
   });
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       navigate("/auth");
       return;
     }
-    fetchGuestIdAndPreferences();
-  }, [user, navigate]);
+    if (user) {
+      fetchGuestIdAndPreferences();
+    }
+  }, [user, isLoading, navigate]);
   const fetchGuestIdAndPreferences = async () => {
     if (!user?.email) return;
     try {
@@ -124,6 +124,17 @@ const Navette = () => {
       setLoading(false);
     }
   };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Caricamento...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) return null;
   return <div className="min-h-screen bg-background">
       <Navbar />

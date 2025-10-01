@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2, Send } from "lucide-react";
 
@@ -33,6 +34,7 @@ const ShuttleManagement = () => {
   const [preferences, setPreferences] = useState<ShuttlePreference[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSendingNotifications, setIsSendingNotifications] = useState(false);
+  const [selectedGuests, setSelectedGuests] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchPreferences();
@@ -64,20 +66,42 @@ const ShuttleManagement = () => {
   const sendShuttleNotifications = async () => {
     try {
       setIsSendingNotifications(true);
-      console.log("Sending shuttle notifications to all attending guests");
+      const guestIds = Array.from(selectedGuests);
+      console.log(`Sending shuttle notifications to ${guestIds.length} selected guests`);
 
       const { data, error } = await supabase.functions.invoke('send-shuttle-notification', {
-        body: {}
+        body: { guestIds }
       });
 
       if (error) throw error;
 
       toast.success(data.message || `Inviati ${data.sent} email di notifica navette`);
+      setSelectedGuests(new Set());
     } catch (error: any) {
       console.error("Error sending shuttle notifications:", error);
       toast.error(error.message || "Errore nell'invio delle notifiche navette");
     } finally {
       setIsSendingNotifications(false);
+    }
+  };
+
+  const toggleGuestSelection = (guestId: string) => {
+    setSelectedGuests(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(guestId)) {
+        newSet.delete(guestId);
+      } else {
+        newSet.add(guestId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleAllGuests = () => {
+    if (selectedGuests.size === preferences.length) {
+      setSelectedGuests(new Set());
+    } else {
+      setSelectedGuests(new Set(preferences.map(p => p.guest_id)));
     }
   };
 
@@ -95,7 +119,7 @@ const ShuttleManagement = () => {
       <CardHeader>
         <CardTitle>Gestione Navette</CardTitle>
         <CardDescription>
-          {interestedCount} invitati interessati • {totalPeople} persone totali
+          {interestedCount} invitati interessati • {totalPeople} persone totali • {selectedGuests.size} selezionati
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -103,7 +127,7 @@ const ShuttleManagement = () => {
         <div className="mb-6 flex justify-center">
           <Button
             onClick={sendShuttleNotifications}
-            disabled={isSendingNotifications}
+            disabled={isSendingNotifications || selectedGuests.size === 0}
             className="autumn-button"
           >
             {isSendingNotifications ? (
@@ -114,7 +138,7 @@ const ShuttleManagement = () => {
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Invia Notifica Navette a Tutti gli Invitati Confermati
+                Invia Notifica Navette agli Invitati Selezionati ({selectedGuests.size})
               </>
             )}
           </Button>
@@ -125,6 +149,12 @@ const ShuttleManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedGuests.size === preferences.length && preferences.length > 0}
+                    onCheckedChange={toggleAllGuests}
+                  />
+                </TableHead>
                 <TableHead>Nome Invitato</TableHead>
                 <TableHead>Interesse</TableHead>
                 <TableHead>Andata</TableHead>
@@ -135,13 +165,19 @@ const ShuttleManagement = () => {
             <TableBody>
               {preferences.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
                     Nessuna preferenza registrata
                   </TableCell>
                 </TableRow>
               ) : (
                 preferences.map((pref) => (
                   <TableRow key={pref.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedGuests.has(pref.guest_id)}
+                        onCheckedChange={() => toggleGuestSelection(pref.guest_id)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">
                       {pref.invited_guests?.name || "Nome non disponibile"}
                     </TableCell>

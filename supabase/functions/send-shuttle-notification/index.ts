@@ -17,15 +17,17 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const { guestIds } = await req.json();
+    
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    console.log("Fetching attending guests for shuttle notification...");
+    console.log("Fetching guests for shuttle notification...", guestIds ? `Selected: ${guestIds.length}` : "All attending");
 
-    // Get all guests who are attending
-    const { data: attendingGuests, error: queryError } = await supabaseClient
+    // Build query based on whether specific guests were selected
+    let query = supabaseClient
       .from('invited_guests')
       .select(`
         id,
@@ -37,6 +39,13 @@ const handler = async (req: Request): Promise<Response> => {
         )
       `)
       .eq('rsvp_responses.attending', true);
+    
+    // If specific guest IDs provided, filter by them
+    if (guestIds && Array.isArray(guestIds) && guestIds.length > 0) {
+      query = query.in('id', guestIds);
+    }
+
+    const { data: attendingGuests, error: queryError } = await query;
 
     if (queryError) {
       console.error("Error querying attending guests:", queryError);

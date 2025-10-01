@@ -22,7 +22,7 @@ const Navette = () => {
     interested: true,
     outbound_wanted: false,
     outbound_location: "",
-    outbound_alternative_location: "",
+    outbound_alternative_available: false,
     outbound_time: "",
     return_wanted: false,
     return_time: "",
@@ -66,7 +66,7 @@ const Navette = () => {
           interested: prefsData.interested,
           outbound_wanted: prefsData.outbound_wanted || false,
           outbound_location: prefsData.outbound_location || "",
-          outbound_alternative_location: prefsData.outbound_alternative_location || "",
+          outbound_alternative_available: prefsData.outbound_alternative_location ? true : false,
           outbound_time: prefsData.outbound_time || "",
           return_wanted: prefsData.return_wanted || false,
           return_time: prefsData.return_time || "",
@@ -94,12 +94,20 @@ const Navette = () => {
         .from("shuttle_preferences")
         .upsert({
           guest_id: guestId,
-          ...formData,
+          interested: formData.interested,
+          outbound_wanted: formData.outbound_wanted,
+          outbound_location: formData.outbound_location,
+          outbound_alternative_location: formData.outbound_alternative_available ? "Sì" : null,
+          outbound_time: formData.outbound_time,
+          return_wanted: formData.return_wanted,
+          return_time: formData.return_time,
+          number_of_people: formData.number_of_people,
         });
 
       if (error) throw error;
 
       toast.success("Preferenze salvate con successo!");
+      navigate("/");
     } catch (error: any) {
       console.error("Error saving preferences:", error);
       toast.error("Errore nel salvataggio delle preferenze");
@@ -114,7 +122,7 @@ const Navette = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pt-24 pb-8">
         <Card className="max-w-3xl mx-auto">
           <CardHeader>
             <CardTitle className="text-3xl">Navette</CardTitle>
@@ -167,32 +175,37 @@ const Navette = () => {
                     {formData.outbound_wanted && (
                       <div className="space-y-4 ml-6">
                         <div>
-                          <Label htmlFor="outbound_location">Luogo di partenza preferito</Label>
+                          <Label htmlFor="outbound_location">Luogo di partenza preferito *</Label>
                           <Input
                             id="outbound_location"
                             value={formData.outbound_location}
                             onChange={(e) => setFormData({ ...formData, outbound_location: e.target.value })}
                             placeholder="Es. Milano Centrale"
+                            required
                           />
                         </div>
 
-                        <div>
-                          <Label htmlFor="outbound_alternative">Sei disponibile a partire anche da un altro luogo?</Label>
-                          <Input
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
                             id="outbound_alternative"
-                            value={formData.outbound_alternative_location}
-                            onChange={(e) => setFormData({ ...formData, outbound_alternative_location: e.target.value })}
-                            placeholder="Es. Milano Porta Garibaldi"
+                            checked={formData.outbound_alternative_available}
+                            onCheckedChange={(checked) => 
+                              setFormData({ ...formData, outbound_alternative_available: checked as boolean })
+                            }
                           />
+                          <Label htmlFor="outbound_alternative" className="font-normal cursor-pointer">
+                            Sei disponibile a partire anche da un altro luogo?
+                          </Label>
                         </div>
 
                         <div>
-                          <Label htmlFor="outbound_time">Orario preferito</Label>
+                          <Label htmlFor="outbound_time">Orario preferito *</Label>
                           <Input
                             id="outbound_time"
                             type="time"
                             value={formData.outbound_time}
                             onChange={(e) => setFormData({ ...formData, outbound_time: e.target.value })}
+                            required
                           />
                         </div>
                       </div>
@@ -218,12 +231,13 @@ const Navette = () => {
 
                     {formData.return_wanted && (
                       <div className="ml-6">
-                        <Label htmlFor="return_time">Orario preferito</Label>
+                        <Label htmlFor="return_time">Orario preferito *</Label>
                         <Input
                           id="return_time"
                           type="time"
                           value={formData.return_time}
                           onChange={(e) => setFormData({ ...formData, return_time: e.target.value })}
+                          required
                         />
                       </div>
                     )}
@@ -231,13 +245,14 @@ const Navette = () => {
 
                   {/* Number of People */}
                   <div className="pt-4 border-t">
-                    <Label htmlFor="number_of_people">Numero di persone</Label>
+                    <Label htmlFor="number_of_people">Numero di persone *</Label>
                     <Input
                       id="number_of_people"
                       type="number"
                       min="1"
                       value={formData.number_of_people}
                       onChange={(e) => setFormData({ ...formData, number_of_people: parseInt(e.target.value) || 1 })}
+                      required
                     />
                   </div>
                 </>

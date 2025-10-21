@@ -46,6 +46,7 @@ const Admin = () => {
   const [newGuestEmail, setNewGuestEmail] = useState('');
   const [newGuestName, setNewGuestName] = useState('');
   const [isAddingGuest, setIsAddingGuest] = useState(false);
+  const [isSendingPhotoInvites, setIsSendingPhotoInvites] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
@@ -228,6 +229,47 @@ const Admin = () => {
       });
     } finally {
       setIsAddingGuest(false);
+    }
+  };
+
+  const sendPhotoInvitations = async () => {
+    setIsSendingPhotoInvites(true);
+    
+    try {
+      console.log('Sending photo invitation emails to all guests...');
+      
+      const { data, error } = await supabase.functions.invoke('send-photo-invitation', {
+        body: {}
+      });
+
+      if (error) {
+        console.error('Error invoking edge function:', error);
+        throw error;
+      }
+
+      console.log('Photo invitations response:', data);
+
+      toast({
+        title: "Invitations sent!",
+        description: data.message || `Successfully sent ${data.sent} photo invitation emails`,
+      });
+
+      if (data.failed > 0) {
+        toast({
+          title: "Some invitations failed",
+          description: `${data.failed} emails could not be sent. Check the console for details.`,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error sending photo invitations:', error);
+      toast({
+        title: "Error sending invitations",
+        description: error.message || "Failed to send photo invitations",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingPhotoInvites(false);
     }
   };
 
@@ -633,11 +675,36 @@ const Admin = () => {
               <CardHeader>
                 <CardTitle>Photo Management</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Photo management features will be implemented here. 
-                  Currently showing {stats?.totalPhotos || 0} uploaded photos.
-                </p>
+              <CardContent className="space-y-6">
+                <div>
+                  <p className="text-gray-600 mb-4">
+                    Currently showing {stats?.totalPhotos || 0} uploaded photos.
+                  </p>
+                </div>
+
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-3">Invite Guests to Share Photos</h3>
+                  <p className="text-gray-600 mb-4">
+                    Send an email to all guests thanking them for their presence and inviting them to upload their photos from the wedding.
+                  </p>
+                  <Button
+                    onClick={sendPhotoInvitations}
+                    disabled={isSendingPhotoInvites}
+                    className="autumn-button flex items-center gap-2"
+                  >
+                    {isSendingPhotoInvites ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Sending Invitations...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="h-4 w-4" />
+                        Send Photo Upload Invitations
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

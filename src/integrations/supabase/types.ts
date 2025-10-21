@@ -300,6 +300,7 @@ export type Database = {
           guest_id: string
           id: string
           image_url: string
+          shooting_time: string | null
         }
         Insert: {
           caption?: string | null
@@ -307,6 +308,7 @@ export type Database = {
           guest_id: string
           id?: string
           image_url: string
+          shooting_time?: string | null
         }
         Update: {
           caption?: string | null
@@ -314,6 +316,7 @@ export type Database = {
           guest_id?: string
           id?: string
           image_url?: string
+          shooting_time?: string | null
         }
         Relationships: [
           {

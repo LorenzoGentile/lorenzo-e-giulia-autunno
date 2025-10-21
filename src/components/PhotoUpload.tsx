@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import exifr from 'exifr';
 import { Image, Upload, X } from 'lucide-react';
 
 // Mock Supabase client for demonstration if not set up
@@ -163,6 +164,18 @@ const PhotoUpload: React.FC<PhotoUploadProps> = (/*{ userId }*/) => {
 
     for (const file of selectedFiles) {
       try {
+        // Extract EXIF data to get shooting time
+        let shootingTime: string | null = null;
+        try {
+          const exifData = await exifr.parse(file);
+          if (exifData?.DateTimeOriginal) {
+            shootingTime = new Date(exifData.DateTimeOriginal).toISOString();
+            console.log(`Extracted shooting time for ${file.name}:`, shootingTime);
+          }
+        } catch (exifError) {
+          console.log(`No EXIF data found for ${file.name}`);
+        }
+
         const fileExt = file.name.split('.').pop();
         const sanitizedFileNameBase = file.name.substring(0, file.name.lastIndexOf('.'))
                                         .replace(/[^a-zA-Z0-9_.-]/g, '_');
@@ -198,6 +211,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = (/*{ userId }*/) => {
             guest_id: guestId,
             image_url: imageUrl,
             caption: caption || null, // Same caption for all files in this batch
+            shooting_time: shootingTime,
           });
 
         if (insertError) {

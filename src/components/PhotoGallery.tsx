@@ -27,6 +27,7 @@ const PhotoGallery = () => {
       const { data, error } = await supabase
         .from('wedding_photos')
         .select('*')
+        .order('shooting_time', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
         
       if (error) throw error;

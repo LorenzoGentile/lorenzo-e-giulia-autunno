@@ -10,6 +10,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+interface ReminderRequest {
+  guestIds?: string[]; // For batch sending
+  guestId?: string;    // For individual sending
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -22,16 +27,25 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    console.log("Fetching attending guests...");
+    const { guestId }: { guestId?: string } = await req.json();
+    
+    console.log("Photo invitation request received:", { guestId });
 
-    // Get only guests who have RSVP'd as attending
-    const { data: guests, error: guestError } = await supabaseClient
+    // Get attending guests
+    let query = supabaseClient
       .from('invited_guests')
       .select(`
         *,
         rsvp_responses!inner(attending)
       `)
       .eq('rsvp_responses.attending', true);
+    
+    // If specific guest ID is provided, filter by it
+    if (guestId) {
+      query = query.eq('id', guestId);
+    }
+
+    const { data: guests, error: guestError } = await query;
 
     if (guestError) {
       console.error("Error fetching guest details:", guestError);

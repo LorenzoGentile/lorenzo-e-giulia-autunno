@@ -50,6 +50,7 @@ const RsvpManagement = () => {
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [isSendingReminders, setIsSendingReminders] = useState(false);
   const [reminderStats, setReminderStats] = useState({ total: 0, responded: 0, notResponded: 0 });
+  const [sendingPhotoInviteTo, setSendingPhotoInviteTo] = useState<string | null>(null);
 
   // Form state
   const [attending, setAttending] = useState<'yes' | 'no'>('yes');
@@ -314,6 +315,33 @@ const RsvpManagement = () => {
     }
   };
 
+  const sendPhotoInvitation = async (guestId: string) => {
+    try {
+      setSendingPhotoInviteTo(guestId);
+      console.log('Sending photo invitation to guest:', guestId);
+      
+      const { data, error } = await supabase.functions.invoke('send-photo-invitation', {
+        body: { guestId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Photo invitation sent!",
+        description: data.message || "Successfully sent photo invitation email",
+      });
+    } catch (error: any) {
+      console.error('Error sending photo invitation:', error);
+      toast({
+        title: "Error sending invitation",
+        description: error.message || "Failed to send photo invitation",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingPhotoInviteTo(null);
+    }
+  };
+
   const sortedGuests = [...guests].sort((a, b) => {
     switch (sortBy) {
       case 'recent':
@@ -456,6 +484,21 @@ const RsvpManagement = () => {
                             disabled={isSendingReminders}
                           >
                             <Mail className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {guest.attending === true && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => sendPhotoInvitation(guest.id)}
+                            disabled={sendingPhotoInviteTo === guest.id}
+                            className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                          >
+                            {sendingPhotoInviteTo === guest.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Send className="h-4 w-4" />
+                            )}
                           </Button>
                         )}
                         <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
@@ -681,32 +724,53 @@ const RsvpManagement = () => {
                        <TableCell>
                          {guest.created_at ? new Date(guest.created_at).toLocaleDateString() : '-'}
                        </TableCell>
-                        <TableCell>
-                           <div className="flex gap-2">
-                             {guest.attending === undefined && (
-                               <Button
-                                 variant="outline"
-                                 size="sm"
-                                 onClick={() => sendReminderToGuest(guest.id)}
-                                 disabled={isSendingReminders}
-                               >
-                                 <Mail className="h-4 w-4 mr-1" />
-                                 Remind
-                               </Button>
-                             )}
-                             <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
-                               if (!open) setIsDialogOpen(false);
-                             }}>
-                               <DialogTrigger asChild>
-                                 <Button 
-                                   variant="outline" 
-                                   size="sm"
-                                   onClick={() => openRsvpDialog(guest)}
-                                 >
-                                   <Edit3 className="h-4 w-4 mr-1" />
-                                   {guest.rsvp_id ? 'Edit' : 'Add'} RSVP
-                                 </Button>
-                               </DialogTrigger>
+                         <TableCell>
+                            <div className="flex gap-2">
+                              {guest.attending === undefined && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => sendReminderToGuest(guest.id)}
+                                  disabled={isSendingReminders}
+                                >
+                                  <Mail className="h-4 w-4 mr-1" />
+                                  Remind
+                                </Button>
+                              )}
+                              {guest.attending === true && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => sendPhotoInvitation(guest.id)}
+                                  disabled={sendingPhotoInviteTo === guest.id}
+                                  className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                                >
+                                  {sendingPhotoInviteTo === guest.id ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                                      Sending...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Send className="h-4 w-4 mr-1" />
+                                      Photo Invite
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                              <Dialog open={isDialogOpen && selectedGuest?.id === guest.id} onOpenChange={(open) => {
+                                if (!open) setIsDialogOpen(false);
+                              }}>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => openRsvpDialog(guest)}
+                                  >
+                                    <Edit3 className="h-4 w-4 mr-1" />
+                                    {guest.rsvp_id ? 'Edit' : 'Add'} RSVP
+                                  </Button>
+                                </DialogTrigger>
                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                              <DialogHeader>
                                <DialogTitle>

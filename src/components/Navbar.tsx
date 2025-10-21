@@ -32,6 +32,7 @@ const Navbar = () => {
     { name: 'Dettagli Evento', href: '/#dettagli' },
     { name: 'RSVP', href: '/#rsvp' },
     { name: 'Galleria', href: '/#galleria' },
+    { name: 'Foto', href: '/photos' },
     { name: 'Lista Nozze', href: '/#lista-nozze' },
   ];
 
@@ -64,13 +65,23 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-6">
             {navLinks.map(link => (
-              <a 
-                key={link.name}
-                href={link.href} 
-                className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
-              >
-                {link.name}
-              </a>
+              link.href.startsWith('/') ? (
+                <Link 
+                  key={link.name}
+                  to={link.href} 
+                  className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a 
+                  key={link.name}
+                  href={link.href} 
+                  className="text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
+                >
+                  {link.name}
+                </a>
+              )
             ))}
             {user && userLinks.map(link => (
               <Link 
@@ -130,13 +141,23 @@ const Navbar = () => {
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
                 {navLinks.map(link => (
-                  <a 
-                    key={link.name}
-                    href={link.href} 
-                    className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
-                  >
-                    {link.name}
-                  </a>
+                  link.href.startsWith('/') ? (
+                    <Link 
+                      key={link.name}
+                      to={link.href} 
+                      className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <a 
+                      key={link.name}
+                      href={link.href} 
+                      className="text-lg text-autumn-burgundy hover:text-autumn-terracotta transition-colors font-cinzel"
+                    >
+                      {link.name}
+                    </a>
+                  )
                 ))}
                 
                 {user && userLinks.map(link => (

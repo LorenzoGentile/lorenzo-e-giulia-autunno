@@ -17,9 +17,8 @@ const Photos = () => {
       <Navbar />
       
       <section className="min-h-[50vh] bg-cover bg-center relative py-20" style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjJ8fGF1dHVtbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1600&q=60')`
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/lovable-uploads/wedding-hero.jpeg')`
       }}>
-        <div className="absolute inset-0 bg-autumn-burgundy opacity-20"></div>
         <div className="container mx-auto px-4 z-10 text-center relative">
           <h1 className="text-5xl md:text-7xl font-bold text-white font-playfair mb-6">
             La Nostra Galleria

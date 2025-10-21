@@ -6,14 +6,8 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-interface ReminderRequest {
-  guestIds?: string[]; // For batch sending
-  guestId?: string;    // For individual sending
-}
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -24,28 +18,21 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const { guestId }: { guestId?: string } = await req.json();
-    
-    console.log("Photo invitation request received:", { guestId });
+    console.log("Fetching attending guests...");
 
-    // Get attending guests
-    let query = supabaseClient
-      .from('invited_guests')
-      .select(`
+    // Get only guests who have RSVP'd as attending
+    const { data: guests, error: guestError } = await supabaseClient
+      .from("invited_guests")
+      .select(
+        `
         *,
         rsvp_responses!inner(attending)
-      `)
-      .eq('rsvp_responses.attending', true);
-    
-    // If specific guest ID is provided, filter by it
-    if (guestId) {
-      query = query.eq('id', guestId);
-    }
-
-    const { data: guests, error: guestError } = await query;
+      `,
+      )
+      .eq("rsvp_responses.attending", true);
 
     if (guestError) {
       console.error("Error fetching guest details:", guestError);
@@ -53,13 +40,10 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     if (!guests || guests.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "No guests found" }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
+      return new Response(JSON.stringify({ message: "No guests found" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     console.log(`Sending photo invitation emails to ${guests.length} guests`);
@@ -71,7 +55,7 @@ const handler = async (req: Request): Promise<Response> => {
     for (const guest of guests) {
       try {
         console.log(`Sending photo invitation to ${guest.name} (${guest.email})`);
-        
+
         const emailHtml = `
           <!DOCTYPE html>
           <html>
@@ -95,11 +79,11 @@ const handler = async (req: Request): Promise<Response> => {
                   <h2 style="color: hsl(25, 30%, 20%); margin: 0 0 20px 0; font-size: 24px; font-family: 'Cinzel Decorative', serif;">Caro/a ${guest.name},</h2>
                   
                   <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
-                    Vogliamo ringraziarti dal profondo del cuore per aver condiviso con noi il giorno più bello della nostra vita. La tua presenza ha reso il nostro matrimonio ancora più speciale e indimenticabile.
+                    Vogliamo ringraziarvi dal profondo del cuore per aver condiviso con noi il giorno più bello della nostra vita. La vostra presenza ha reso il nostro matrimonio ancora più speciale e indimenticabile.
                   </p>
 
                   <p style="color: hsl(25, 30%, 20%); line-height: 1.6; margin: 20px 0; font-size: 16px;">
-                    Ora che il grande giorno è passato, vorremmo rivivere quei momenti magici attraverso i tuoi occhi! Ti invitiamo a condividere le foto che hai scattato durante la cerimonia e il ricevimento sulla nostra galleria fotografica online.
+                    Ora che il grande giorno è passato, vorremmo rivivere quei momenti magici attraverso i vostri occhi! Vi invitiamo a condividere le foto che avete scattato durante la cerimonia e il ricevimento sulla nostra galleria fotografica online.
                   </p>
 
                   <!-- Photo Sharing Box -->
@@ -158,8 +142,7 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
         // Add a small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
-
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (emailError) {
         console.error(`Error sending email to ${guest.email}:`, emailError);
         failedEmails.push({ guest: guest.name, email: guest.email, error: emailError.message });
@@ -175,25 +158,24 @@ const handler = async (req: Request): Promise<Response> => {
         failed: failedEmails.length,
         results: emailResults,
         failures: failedEmails,
-        message: `Successfully sent ${emailResults.length} photo invitation emails${failedEmails.length > 0 ? `, ${failedEmails.length} failed` : ''}`
+        message: `Successfully sent ${emailResults.length} photo invitation emails${failedEmails.length > 0 ? `, ${failedEmails.length} failed` : ""}`,
       }),
       {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      },
     );
-
   } catch (error: any) {
     console.error("Error in send-photo-invitation function:", error);
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: error.message,
-        success: false 
+        success: false,
       }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      },
     );
   }
 };

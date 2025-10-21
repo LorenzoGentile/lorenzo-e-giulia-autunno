@@ -22,12 +22,16 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    console.log("Fetching all invited guests...");
+    console.log("Fetching attending guests...");
 
-    // Get all guests
+    // Get only guests who have RSVP'd as attending
     const { data: guests, error: guestError } = await supabaseClient
       .from('invited_guests')
-      .select('*');
+      .select(`
+        *,
+        rsvp_responses!inner(attending)
+      `)
+      .eq('rsvp_responses.attending', true);
 
     if (guestError) {
       console.error("Error fetching guest details:", guestError);

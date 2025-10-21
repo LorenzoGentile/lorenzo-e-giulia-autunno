@@ -41,7 +41,7 @@ const Photos = () => {
             <div className="flex justify-center mb-8">
               <TabsList>
                 <TabsTrigger value="gallery" className="text-lg px-6">Galleria</TabsTrigger>
-                {(user && isInvitedGuest) && (
+                {user && (
                   <TabsTrigger value="upload" className="text-lg px-6">Carica Foto</TabsTrigger>
                 )}
               </TabsList>
@@ -51,7 +51,7 @@ const Photos = () => {
               <PhotoGallery />
             </TabsContent>
             
-            {(user && isInvitedGuest) && (
+            {user && (
               <TabsContent value="upload">
                 <PhotoUpload />
               </TabsContent>

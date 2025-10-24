@@ -10,6 +10,9 @@ type WeddingPhoto = {
   caption: string | null;
   created_at: string;
   shooting_time: string | null;
+  invited_guests?: {
+    name: string;
+  };
 };
 
 const PhotoGallery = () => {
@@ -36,7 +39,7 @@ const PhotoGallery = () => {
       
       const { data, error, count } = await supabase
         .from('wedding_photos')
-        .select('*', { count: 'exact' })
+        .select('*, invited_guests(name)', { count: 'exact' })
         .order('shooting_time', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false })
         .range(from, to);
@@ -140,11 +143,14 @@ const PhotoGallery = () => {
                 loading="lazy"
               />
             </div>
-            {photo.caption && (
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-4">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end p-4 gap-1">
+              {photo.invited_guests?.name && (
+                <p className="text-white text-sm font-medium">📸 {photo.invited_guests.name}</p>
+              )}
+              {photo.caption && (
                 <p className="text-white text-center font-medium">{photo.caption}</p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         ))}
       </div>

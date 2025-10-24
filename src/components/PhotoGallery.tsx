@@ -37,25 +37,16 @@ const PhotoGallery = () => {
       const { data, error, count } = await supabase
         .from('wedding_photos')
         .select('*', { count: 'exact' })
+        .order('shooting_time', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: false })
         .range(from, to);
         
       if (error) throw error;
       
-      // Sort: photos with shooting_time first (ascending), then photos without (by created_at descending)
-      const sortedPhotos = (data || []).sort((a, b) => {
-        if (a.shooting_time && b.shooting_time) {
-          return new Date(a.shooting_time).getTime() - new Date(b.shooting_time).getTime();
-        }
-        if (a.shooting_time && !b.shooting_time) return -1;
-        if (!a.shooting_time && b.shooting_time) return 1;
-        // Both null - sort by created_at descending
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-      
       if (pageNum === 0) {
-        setPhotos(sortedPhotos);
+        setPhotos(data || []);
       } else {
-        setPhotos(prev => [...prev, ...sortedPhotos]);
+        setPhotos(prev => [...prev, ...(data || [])]);
       }
       
       setHasMore((count || 0) > (pageNum + 1) * PHOTOS_PER_PAGE);

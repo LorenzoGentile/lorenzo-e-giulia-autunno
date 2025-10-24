@@ -9,6 +9,7 @@ type WeddingPhoto = {
   image_url: string;
   caption: string | null;
   created_at: string;
+  shooting_time: string | null;
 };
 
 const PhotoGallery = () => {
@@ -26,13 +27,22 @@ const PhotoGallery = () => {
       
       const { data, error } = await supabase
         .from('wedding_photos')
-        .select('*')
-        .order('shooting_time', { ascending: true, nullsFirst: false })
-        .order('created_at', { ascending: false });
+        .select('*');
         
       if (error) throw error;
       
-      setPhotos(data || []);
+      // Sort: photos with shooting_time first (ascending), then photos without (by created_at descending)
+      const sortedPhotos = (data || []).sort((a, b) => {
+        if (a.shooting_time && b.shooting_time) {
+          return new Date(a.shooting_time).getTime() - new Date(b.shooting_time).getTime();
+        }
+        if (a.shooting_time && !b.shooting_time) return -1;
+        if (!a.shooting_time && b.shooting_time) return 1;
+        // Both null - sort by created_at descending
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setPhotos(sortedPhotos);
     } catch (error) {
       console.error('Error fetching photos:', error);
       toast.error('Failed to load photos', {

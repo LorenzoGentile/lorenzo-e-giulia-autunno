@@ -44,7 +44,14 @@ const PhotoGallery = () => {
         .order('created_at', { ascending: false })
         .range(from, to);
         
-      if (error) throw error;
+      if (error) {
+        // If it's a range error, we've reached the end
+        if (error.code === 'PGRST103') {
+          setHasMore(false);
+          return;
+        }
+        throw error;
+      }
       
       if (pageNum === 0) {
         setPhotos(data || []);
@@ -52,12 +59,17 @@ const PhotoGallery = () => {
         setPhotos(prev => [...prev, ...(data || [])]);
       }
       
-      setHasMore((count || 0) > (pageNum + 1) * PHOTOS_PER_PAGE);
+      // Check if we have more data
+      const hasMoreData = (data?.length || 0) === PHOTOS_PER_PAGE && (count || 0) > (pageNum + 1) * PHOTOS_PER_PAGE;
+      setHasMore(hasMoreData);
     } catch (error) {
       console.error('Error fetching photos:', error);
-      toast.error('Failed to load photos', {
-        description: 'Please try again later'
-      });
+      if (pageNum === 0) {
+        toast.error('Failed to load photos', {
+          description: 'Please try again later'
+        });
+      }
+      setHasMore(false);
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);

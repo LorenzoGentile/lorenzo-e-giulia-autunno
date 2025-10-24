@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Image } from 'lucide-react';
+import { Image, Loader2 } from 'lucide-react';
 
 type WeddingPhoto = {
   id: string;
@@ -15,19 +15,29 @@ type WeddingPhoto = {
 const PhotoGallery = () => {
   const [photos, setPhotos] = useState<WeddingPhoto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<WeddingPhoto | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const observerTarget = useRef(null);
+  
+  const PHOTOS_PER_PAGE = 20;
 
-  useEffect(() => {
-    fetchPhotos();
-  }, []);
-
-  const fetchPhotos = async () => {
+  const fetchPhotos = useCallback(async (pageNum: number) => {
     try {
-      setIsLoading(true);
+      if (pageNum === 0) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
       
-      const { data, error } = await supabase
+      const from = pageNum * PHOTOS_PER_PAGE;
+      const to = from + PHOTOS_PER_PAGE - 1;
+      
+      const { data, error, count } = await supabase
         .from('wedding_photos')
-        .select('*');
+        .select('*', { count: 'exact' })
+        .range(from, to);
         
       if (error) throw error;
       
@@ -42,7 +52,13 @@ const PhotoGallery = () => {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
       
-      setPhotos(sortedPhotos);
+      if (pageNum === 0) {
+        setPhotos(sortedPhotos);
+      } else {
+        setPhotos(prev => [...prev, ...sortedPhotos]);
+      }
+      
+      setHasMore((count || 0) > (pageNum + 1) * PHOTOS_PER_PAGE);
     } catch (error) {
       console.error('Error fetching photos:', error);
       toast.error('Failed to load photos', {
@@ -50,8 +66,38 @@ const PhotoGallery = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPhotos(0);
+  }, [fetchPhotos]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isLoading) {
+          setPage(prev => {
+            const nextPage = prev + 1;
+            fetchPhotos(nextPage);
+            return nextPage;
+          });
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasMore, isLoadingMore, isLoading, fetchPhotos]);
 
   const openPhotoModal = (photo: WeddingPhoto) => {
     setSelectedPhoto(photo);
@@ -111,6 +157,18 @@ const PhotoGallery = () => {
           </div>
         ))}
       </div>
+
+      {/* Infinite scroll trigger */}
+      {hasMore && (
+        <div ref={observerTarget} className="flex justify-center py-8">
+          {isLoadingMore && (
+            <div className="flex items-center gap-2 text-autumn-amber">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <span>Caricamento altre foto...</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Photo Modal */}
       {selectedPhoto && (
